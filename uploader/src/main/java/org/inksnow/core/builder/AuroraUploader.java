@@ -61,22 +61,24 @@ public class AuroraUploader {
       gson.toJson(manifest, writer);
     }
 
-    upload(manifestPath, UPLOAD_BASE_URL + "manifest.json");
+    upload(manifestPath, UPLOAD_BASE_URL + "manifest.json", true);
   }
 
   @SneakyThrows
-  public static void upload(Path path, String url) {
+  public static void upload(Path path, String url, boolean override) {
     String username = System.getenv("IREPO_USERNAME");
     String password = System.getenv("IREPO_PASSWORD");
 
-    HttpURLConnection testExistConnection = (HttpURLConnection) new URL(url).openConnection();
-    try {
-      if (testExistConnection.getResponseCode() == 200) {
-        return;
+    if (!override) {
+      HttpURLConnection testExistConnection = (HttpURLConnection) new URL(url).openConnection();
+      try {
+        if (testExistConnection.getResponseCode() == 200) {
+          return;
+        }
+        System.out.println("Uploading: " + testExistConnection.getResponseCode());
+      } finally {
+        testExistConnection.disconnect();
       }
-      System.out.println("Uploading: " + testExistConnection.getResponseCode());
-    } finally {
-      testExistConnection.disconnect();
     }
 
     HttpURLConnection uploadConnection = (HttpURLConnection) new URL(url).openConnection();
@@ -115,7 +117,7 @@ public class AuroraUploader {
         return FileVisitResult.CONTINUE;
       }
       String hash = checksum(file);
-      upload(file, UPLOAD_BASE_URL + hash.substring(0, 2) + "/" + hash);
+      upload(file, UPLOAD_BASE_URL + hash.substring(0, 2) + "/" + hash, false);
       consumer.accept(new DownloadEntry(
           file.getFileName().toString(),
           PUBLIC_BASE_URL + hash.substring(0, 2) + "/" + hash,

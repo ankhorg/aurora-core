@@ -7,7 +7,7 @@ dependencies {
 
     api(project(":api"))
 
-    implementation("org.inksnow.cputil:logger:1.6")
+    implementation("org.inksnow.cputil:logger:1.7")
 }
 
 tasks.shadowJar {

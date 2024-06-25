@@ -1,5 +1,7 @@
 package org.inksnow.core.api;
 
+import lombok.NonNull;
+import org.bukkit.plugin.Plugin;
 import org.inksnow.core.api.item.ItemSpi;
 import org.inksnow.core.api.worldtag.WorldTagSpi;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +30,10 @@ public final class Aurora {
       throw new IllegalStateException("Aurora has not been initialized");
     }
     return api;
+  }
+
+  public static void scanPlugin(@NonNull Plugin targetPlugin) {
+    api().scanPlugin(targetPlugin);
   }
 
   public static @NotNull ItemSpi item() {

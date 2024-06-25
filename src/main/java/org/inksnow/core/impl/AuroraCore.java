@@ -18,7 +18,6 @@ import org.inksnow.core.api.spi.Namespaced;
 import org.inksnow.core.impl.item.AuroraItemSpi;
 import org.inksnow.core.impl.spi.AbstractSpiRegistry;
 import org.inksnow.core.impl.util.IdentityBox;
-import org.inksnow.core.impl.util.NamespaceUtil;
 import org.inksnow.core.impl.util.TestableUtil;
 import org.inksnow.core.impl.worldtag.AuroraWorldTagSpi;
 
@@ -51,14 +50,20 @@ public class AuroraCore implements AuroraApi, Listener {
   }
 
   public static void onLoad(@NonNull JavaPlugin plugin) {
-    //
+    printer.accept("§8+-----------------------------------------------------");
+    printer.accept("§8|§e [AuroraCore] 正在加载§a AuroraCore " + plugin.getDescription().getVersion());
+    printer.accept("§8|§e [AuroraCore] 作者:§a h6EX4j");
+    printer.accept("§8|§e [AuroraCore] 企鹅:§a 812276666  §e 群:§a 946882957");
+    printer.accept("§8+-----------------------------------------------------");
+
+    for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {
+      instance.onPluginEnabled(new PluginEnableEvent(scanPlugin));
+    }
   }
 
   public static void onEnable(@NonNull JavaPlugin plugin) {
     printer.accept("§8+-----------------------------------------------------");
     printer.accept("§8|§e [AuroraCore] 正在加载§a AuroraCore " + plugin.getDescription().getVersion());
-    printer.accept("§8|§e [AuroraCore] 作者:§a h6EX4j");
-    printer.accept("§8|§e [AuroraCore] 企鹅:§a 812276666  §e 群:§a 946882957");
 
     Bukkit.getPluginManager().registerEvents(instance, plugin);
     Bukkit.getScheduler().runTask(plugin, () -> instance.serverBootstrap = true);
@@ -80,23 +85,23 @@ public class AuroraCore implements AuroraApi, Listener {
     return null;
   }
 
-  @EventHandler
-  public void onPluginEnabled(@NonNull PluginEnableEvent event) {
+  @Override
+  public void scanPlugin(@NonNull Plugin targetPlugin) {
     if (pluginScanned.putIfAbsent(new IdentityBox<>(plugin), true) != null) {
       return;
     }
     if (serverBootstrap) {
       printer.accept("§8+-----------------------------------------------------");
-      printer.accept("§8|§e [AuroraCore] 发现插件热加载§a " + event.getPlugin().getName() + " §e正在注册");
+      printer.accept("§8|§e [AuroraCore] 发现插件热加载§a " + targetPlugin.getName() + " §e正在注册");
     }
 
     List<String> pendingMessages = new ArrayList<>();
 
     ClassLoader classLoader;
-    if (event.getPlugin() == plugin) {
+    if (plugin == targetPlugin) {
       classLoader = AuroraCore.class.getClassLoader();
     } else {
-      classLoader = event.getPlugin().getClass().getClassLoader();
+      classLoader = targetPlugin.getClass().getClassLoader();
     }
 
     for (AbstractSpiRegistry<Namespaced> registry : registries) {
@@ -116,9 +121,14 @@ public class AuroraCore implements AuroraApi, Listener {
     if (serverBootstrap) {
       printer.accept("§8+-----------------------------------------------------");
     } else if (!pendingMessages.isEmpty()) {
-      printer.accept("§8|§e [AuroraCore] 正在扫描插件 §a" + event.getPlugin().getName());
+      printer.accept("§8|§e [AuroraCore] 正在扫描插件 §a" + targetPlugin.getName());
       pendingMessages.forEach(printer);
       printer.accept("§8+-----------------------------------------------------");
     }
+  }
+
+  @EventHandler
+  public void onPluginEnabled(@NonNull PluginEnableEvent event) {
+    scanPlugin(event.getPlugin());
   }
 }

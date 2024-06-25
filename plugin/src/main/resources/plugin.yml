@@ -1,0 +1,4 @@
+name: AuroraCore
+version: ${project.version}
+main: org.inksnow.core.loader.AuroraCorePlugin
+api-version: 1.13

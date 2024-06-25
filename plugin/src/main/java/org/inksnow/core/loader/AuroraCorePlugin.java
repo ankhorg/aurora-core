@@ -91,7 +91,7 @@ public final class AuroraCorePlugin extends JavaPlugin {
       }
     } else {
       RuntimeManifest runtimeManifest;
-      try (Reader reader = new InputStreamReader(new URL(config.updateCenter() + "/api").openStream(), StandardCharsets.UTF_8)) {
+      try (Reader reader = new InputStreamReader(new URL(config.updateCenter()).openStream(), StandardCharsets.UTF_8)) {
         runtimeManifest = gson.fromJson(reader, RuntimeManifest.class);
       }
       AuroraDownloader downloader = new AuroraDownloader(Paths.get("plugins", ".aurora"));

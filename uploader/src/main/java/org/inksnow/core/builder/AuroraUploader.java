@@ -119,7 +119,7 @@ public class AuroraUploader {
     @Override
     @SneakyThrows
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-      if (!file.getFileName().toString().endsWith("-sources.jar")) {
+      if (file.getFileName().toString().endsWith("-sources.jar")) {
         return FileVisitResult.CONTINUE;
       }
       String hash = checksum(file);

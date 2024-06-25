@@ -96,14 +96,6 @@ public class AuroraUploader {
 
       if (uploadConnection.getResponseCode() != 200) {
         System.out.println("Failed to upload: " + uploadConnection.getResponseCode());
-        try (InputStream in = uploadConnection.getErrorStream()) {
-          byte[] buffer = new byte[4096];
-          int read;
-          while ((read = in.read(buffer)) != -1) {
-            System.out.write(buffer, 0, read);
-          }
-          System.out.println();
-        }
       } else {
         System.out.println("Uploaded: " + url);
       }

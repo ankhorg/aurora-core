@@ -12,6 +12,8 @@ import org.inksnow.core.spi.ServicePriority;
 import org.inksnow.core.spi.SpiRegistry;
 import org.inksnow.core.spi.WithServicePriority;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +46,11 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
     @Override
     public @Nullable S get(ResourcePath resourcePath) {
         return services.get(resourcePath);
+    }
+
+    @Override
+    public List<S> getAll() {
+        return Collections.unmodifiableList(new ArrayList<>(services.values()));
     }
 
     @Override

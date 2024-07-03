@@ -4,6 +4,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.resource.ResourcePath;
 import org.inksnow.core.resource.WithResourcePath;
 
+import java.util.List;
+
 /**
  * Represents a registry for SPIs.
  *
@@ -21,6 +23,13 @@ public interface SpiRegistry<S extends WithResourcePath> {
      * @return the SPI with the specified namespace, or {@code null} if not found
      */
     @Nullable S get(ResourcePath resourcePath);
+
+    /**
+     * Gets all the services.
+     *
+     * @return immutable copy of all the services.
+     */
+    List<S> getAll();
 
     /**
      * Gets the SPI with the specified namespace, or throws an exception if not found.

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.SneakyThrows;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -16,8 +17,10 @@ import org.inksnow.cputil.classloader.AuroraClassLoader;
 import org.inksnow.cputil.classloader.LoadPolicy;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Writer;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -58,11 +61,13 @@ public final class AuroraCorePlugin extends JavaPlugin {
 
     @SneakyThrows
     private static Class<?> loadCoreClass() {
+        final Consumer<String> printer = Bukkit.getConsoleSender()::sendMessage;
         final Gson gson = new GsonBuilder()
             .disableHtmlEscaping()
             .setPrettyPrinting()
             .create();
         final Path configPath = Paths.get("plugins", "AuroraCore", "loader-config.json");
+        final Path manifestPath = Paths.get("plugins", "AuroraCore", "manifest.json");
         final AuroraLoaderConfig config;
         if (configPath.toFile().exists()) {
             try (Reader reader = Files.newBufferedReader(configPath)) {
@@ -110,25 +115,40 @@ public final class AuroraCorePlugin extends JavaPlugin {
                     stream.forEach(addImplPath);
                 }
             }
-            config.parentOnly().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_ONLY));
-            config.selfOnly().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_ONLY));
-            config.parentThenSelf().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_THEN_SELF));
-            config.selfThenParent().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_THEN_PARENT));
-            config.disabled().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.DISABLED));
+            config.parentOnly().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_ONLY));
+            config.selfOnly().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_ONLY));
+            config.parentThenSelf().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_THEN_SELF));
+            config.selfThenParent().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_THEN_PARENT));
+            config.disabled().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.DISABLED));
         } else {
-            final RuntimeManifest runtimeManifest;
+            printer.accept("正在下载最新版本");
+            RuntimeManifest runtimeManifest;
             try (Reader reader = new InputStreamReader(new URL(config.updateCenter()).openStream(), StandardCharsets.UTF_8)) {
                 runtimeManifest = gson.fromJson(reader, RuntimeManifest.class);
+
+                try (Writer writer = Files.newBufferedWriter(manifestPath, StandardCharsets.UTF_8)) {
+                    gson.toJson(runtimeManifest, writer);
+                }
+            } catch (Exception e) {
+                if (Files.exists(manifestPath)) {
+                    printer.accept("下载最新版本失败，正在尝试使用缓存的版本");
+                    try (Reader reader = Files.newBufferedReader(manifestPath)) {
+                        runtimeManifest = gson.fromJson(reader, RuntimeManifest.class);
+                    }
+                } else {
+                    throw e;
+                }
             }
+
             final AuroraDownloader downloader = new AuroraDownloader(Paths.get("plugins", ".aurora"));
             downloader.downloadAll(runtimeManifest.api()).forEach(addApiPath);
             downloader.downloadAll(runtimeManifest.impl()).forEach(addImplPath);
 
-            runtimeManifest.parentOnly().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_ONLY));
-            runtimeManifest.selfOnly().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_ONLY));
-            runtimeManifest.parentThenSelf().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_THEN_SELF));
-            runtimeManifest.selfThenParent().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_THEN_PARENT));
-            runtimeManifest.disabled().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.DISABLED));
+            runtimeManifest.parentOnly().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_ONLY));
+            runtimeManifest.selfOnly().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_ONLY));
+            runtimeManifest.parentThenSelf().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_THEN_SELF));
+            runtimeManifest.selfThenParent().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_THEN_PARENT));
+            runtimeManifest.disabled().forEach(it -> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.DISABLED));
         }
 
         return Class.forName(AURORA_CORE_CLASS_NAME, false, implClassLoaderBuilder.build());

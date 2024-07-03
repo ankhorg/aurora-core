@@ -1,6 +1,7 @@
 package org.inksnow.core;
 
 import com.google.common.base.Preconditions;
+import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.spi.ServiceApi;
@@ -20,27 +21,24 @@ public final class Aurora {
     }
 
     /**
-     * Initializes the Aurora API.
-     *
-     * @param api the API instance.
-     * @throws IllegalStateException if the API has already been initialized.
-     */
-    public static void api(AuroraApi api) throws IllegalStateException {
-        Preconditions.checkNotNull(api, "api");
-        Preconditions.checkState(Aurora.api == null, "Aurora has already been initialized");
-
-        Aurora.api = api;
-    }
-
-    /**
      * Gets the Aurora API.
      *
      * @return the Aurora API.
      * @throws IllegalStateException if the API has not been initialized.
      */
+    @SneakyThrows
+    @SuppressWarnings("argument") // reflection obj could be null, but checker framework doesn't know
     public static AuroraApi api() {
-        final @Nullable AuroraApi api = Aurora.api;
-        Preconditions.checkState(api != null, "Aurora has not been initialized");
+        @Nullable AuroraApi api = Aurora.api;
+        if (api == null) {
+            api = (AuroraApi) Class.forName("org.inksnow.core.loader.AuroraCorePlugin")
+                .getMethod("instance")
+                .invoke(null);
+            if (api == null) {
+                throw new IllegalStateException("Aurora API failed to initialize");
+            }
+            Aurora.api = api;
+        }
         return api;
     }
 

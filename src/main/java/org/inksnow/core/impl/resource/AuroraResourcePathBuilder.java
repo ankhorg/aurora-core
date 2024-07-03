@@ -1,14 +1,11 @@
 package org.inksnow.core.impl.resource;
 
-import com.google.common.base.Preconditions;
 import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.checkerframework.checker.nonempty.qual.NonEmpty;
 import org.checkerframework.common.value.qual.MatchesRegex;
-import org.checkerframework.common.value.qual.MinLen;
-import org.checkerframework.dataflow.qual.Pure;
 import org.inksnow.core.resource.ResourcePath;
 
 import java.util.ArrayList;

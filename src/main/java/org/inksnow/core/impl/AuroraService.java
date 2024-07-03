@@ -2,11 +2,8 @@ package org.inksnow.core.impl;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.impl.spi.AbstractSpiRegistry;
 import org.inksnow.core.impl.spi.item.AuroraItemSpi;
@@ -23,7 +20,6 @@ import java.util.WeakHashMap;
 
 @Singleton
 public class AuroraService implements ServiceApi {
-    private final JavaPlugin auroraPlugin;
     @Getter
     private final AuroraItemSpi item;
     @Getter
@@ -33,8 +29,7 @@ public class AuroraService implements ServiceApi {
     private final AbstractSpiRegistry<?> [] registries;
 
     @Inject
-    private AuroraService(JavaPlugin auroraPlugin, AuroraItemSpi item, AuroraWorldTagSpi worldTag) {
-        this.auroraPlugin = auroraPlugin;
+    private AuroraService(AuroraItemSpi item, AuroraWorldTagSpi worldTag) {
         this.item = item;
         this.worldTag = worldTag;
         this.pluginScanned = new WeakHashMap<>();
@@ -57,7 +52,7 @@ public class AuroraService implements ServiceApi {
         final List<String> pendingMessages = new ArrayList<>();
 
         final @Nullable ClassLoader classLoader;
-        if (auroraPlugin == targetPlugin) {
+        if (targetPlugin == AuroraCore.plugin) {
             classLoader = AuroraCore.class.getClassLoader();
         } else {
             classLoader = targetPlugin.getClass().getClassLoader();

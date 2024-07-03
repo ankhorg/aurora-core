@@ -11,6 +11,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.inksnow.core.AuroraApi;
 import org.inksnow.cputil.AuroraDownloader;
 import org.inksnow.cputil.UnsafeUtil;
 import org.inksnow.cputil.classloader.AuroraClassLoader;
@@ -38,6 +39,8 @@ import java.util.stream.Stream;
 public final class AuroraCorePlugin extends JavaPlugin {
     private static final String AURORA_CORE_CLASS_NAME = "org.inksnow.core.impl.AuroraCore";
     private static final Class<?> AURORA_CORE_CLASS = loadCoreClass();
+
+    private static final MethodHandle INSTANCE = loadMethod("instance", AURORA_CORE_CLASS);
 
     private static final MethodHandle ON_INIT = loadMethod("onInit", void.class, JavaPlugin.class);
     private static final MethodHandle ON_LOAD = loadMethod("onLoad", void.class, JavaPlugin.class);
@@ -152,6 +155,11 @@ public final class AuroraCorePlugin extends JavaPlugin {
         }
 
         return Class.forName(AURORA_CORE_CLASS_NAME, false, implClassLoaderBuilder.build());
+    }
+
+    @SneakyThrows
+    public static AuroraApi instance() {
+        return (AuroraApi) INSTANCE.invoke();
     }
 
     @SneakyThrows

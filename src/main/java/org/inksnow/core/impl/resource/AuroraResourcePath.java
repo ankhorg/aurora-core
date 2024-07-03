@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.checkerframework.checker.nonempty.qual.NonEmpty;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.value.qual.MatchesRegex;
-import org.checkerframework.common.value.qual.MinLen;
 import org.inksnow.core.resource.ResourcePath;
 
 import java.util.ArrayList;

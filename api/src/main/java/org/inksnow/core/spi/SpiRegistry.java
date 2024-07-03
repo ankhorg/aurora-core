@@ -12,6 +12,10 @@ import org.inksnow.core.resource.WithResourcePath;
 public interface SpiRegistry<S extends WithResourcePath> {
     /**
      * Gets the SPI with the specified namespace.
+     * <p>
+     * For example, if the SPI has the resourcePath {@code "aurora:minecraft:name"}, you can get it by calling
+     * {@code get(ResourcePath.of("aurora:minecraft:name"))}, {@code get(ResourcePath.of("minecraft:name"))} or
+     * {@code get(ResourcePath.of("name"))}.
      *
      * @param resourcePath the namespace of the SPI
      * @return the SPI with the specified namespace, or {@code null} if not found

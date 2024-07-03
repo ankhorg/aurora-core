@@ -16,6 +16,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.Aurora;
 import org.inksnow.core.AuroraApi;
@@ -24,13 +25,13 @@ import org.inksnow.cputil.logger.AuroraLoggerFactory;
 import org.inksnow.cputil.logger.impl.parent.AuroraParentLogger;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
 public class AuroraCore implements AuroraApi, Listener {
     public static final Consumer<String> printer = Bukkit.getConsoleSender()::sendMessage;
     private static @MonotonicNonNull AuroraCore instance;
+    /* package-private */ static @MonotonicNonNull JavaPlugin plugin;
     @Getter
     private static boolean serverBootstrap = false;
 
@@ -40,20 +41,33 @@ public class AuroraCore implements AuroraApi, Listener {
 
     private final Injector injector;
 
-    @Getter
-    private final JavaPlugin plugin;
 
     @Getter
     private final AuroraService service;
 
+    public static AuroraCore instance() {
+        AuroraCore instance = AuroraCore.instance;
+        if (instance != null) {
+            return instance;
+        }
+        synchronized (AuroraCore.class) {
+            instance = AuroraCore.instance;
+            if (instance != null) {
+                return instance;
+            }
+            final Injector bootstrapInjector = Guice.createInjector(
+                new AuroraCoreModule()
+            );
+            instance = bootstrapInjector.getInstance(AuroraCore.class);
+            AuroraCore.instance = instance;
+        }
+        return instance;
+    }
+
     public static void onInit(JavaPlugin plugin) {
-        final Injector bootstrapInjector = Guice.createInjector(
-            new AuroraCoreModule(),
-            binder -> binder.bind(JavaPlugin.class).toInstance(plugin)
-        );
-        final AuroraCore instance = bootstrapInjector.getInstance(AuroraCore.class);
-        Aurora.api(instance);
-        AuroraCore.instance = instance;
+        Preconditions.checkState(instance == null, "AuroraCore already initialized");
+        AuroraCore.plugin = plugin;
+        instance();
     }
 
     public static void onLoad(JavaPlugin plugin) {
@@ -109,7 +123,7 @@ public class AuroraCore implements AuroraApi, Listener {
     }
 
     @Override
-    public <T> T getFactory(Class<T> clazz) {
+    public <@NonNull T> T getFactory(Class<T> clazz) {
         return injector.getInstance(clazz);
     }
 }

@@ -59,6 +59,7 @@ public class AuroraCore implements AuroraApi, Listener {
                 new AuroraCoreModule()
             );
             instance = bootstrapInjector.getInstance(AuroraCore.class);
+            Aurora.api(instance);
             AuroraCore.instance = instance;
         }
         return instance;

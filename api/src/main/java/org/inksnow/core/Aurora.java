@@ -21,6 +21,19 @@ public final class Aurora {
     }
 
     /**
+     * Initializes the Aurora API.
+     *
+     * @param api the API instance.
+     * @throws IllegalStateException if the API has already been initialized.
+     */
+    public static void api(AuroraApi api) throws IllegalStateException {
+        Preconditions.checkNotNull(api, "api");
+        Preconditions.checkState(Aurora.api == null || Aurora.api == api, "Aurora has already been initialized");
+
+        Aurora.api = api;
+    }
+
+    /**
      * Gets the Aurora API.
      *
      * @return the Aurora API.
@@ -34,10 +47,7 @@ public final class Aurora {
             api = (AuroraApi) Class.forName("org.inksnow.core.loader.AuroraCorePlugin")
                 .getMethod("instance")
                 .invoke(null);
-            if (api == null) {
-                throw new IllegalStateException("Aurora API failed to initialize");
-            }
-            Aurora.api = api;
+            api(api);
         }
         return api;
     }

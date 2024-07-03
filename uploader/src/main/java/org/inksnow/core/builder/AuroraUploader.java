@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.cputil.HexUtil;
 import org.inksnow.cputil.UncheckUtil;
+import org.inksnow.cputil.classloader.LoadPolicy;
 import org.inksnow.cputil.download.DownloadEntry;
 
 import java.io.File;
@@ -51,7 +52,10 @@ public class AuroraUploader {
     public static void main(String[] args) {
         final Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
-        final RuntimeManifest.Builder builder = RuntimeManifest.builder();
+        final RuntimeManifest.Builder builder = RuntimeManifest.builder()
+            .selfOnly("com/google/common")
+            .selfOnly("com/google/inject")
+            .selfOnly("org/inksnow/cputil");
 
         Files.walkFileTree(Paths.get("api/build/libs"), new UploadVisitor(builder::api));
 

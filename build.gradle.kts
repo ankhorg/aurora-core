@@ -113,7 +113,7 @@ dependencies {
     }
     compileOnly(project(":api"))
 
-    compileOnly("org.checkerframework.annotatedlib:guava:33.1.0.2-jre") {
+    api("org.checkerframework.annotatedlib:guava:33.1.0.2-jre") {
         exclude("com.google.code.findbugs", "jsr305")
     }
     api("org.slf4j:slf4j-api:1.7.36")

@@ -15,4 +15,15 @@ public class RuntimeManifest {
 
     @Singular("impl")
     List<DownloadEntry> impl;
+
+    @Singular("parentOnly")
+    List<String> parentOnly;
+    @Singular("selfOnly")
+    List<String> selfOnly;
+    @Singular("parentThenSelf")
+    List<String> parentThenSelf;
+    @Singular("selfThenParent")
+    List<String> selfThenParent;
+    @Singular("disabled")
+    List<String> disabled;
 }

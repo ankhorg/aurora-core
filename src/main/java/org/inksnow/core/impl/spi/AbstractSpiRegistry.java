@@ -12,6 +12,7 @@ import org.inksnow.core.spi.ServicePriority;
 import org.inksnow.core.spi.SpiRegistry;
 import org.inksnow.core.spi.WithServicePriority;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements SpiRegistry<S> {
+    private static final Comparator<WithResourcePath> SERVICE_COMPARATOR =
+        Comparator.<WithResourcePath, ServicePriority>comparing(AbstractSpiRegistry::getPriority)
+            .thenComparing(WithResourcePath::resourcePath)
+            .thenComparing(it -> {
+                throw new IllegalStateException("Unexpected");
+            });
+
     @Getter
     private final AuroraServiceLoader<S> loader;
     private final Map<ResourcePath, S> services;
@@ -54,24 +62,6 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
         return service instanceof WithServicePriority
             ? ((WithServicePriority) service).priority()
             : ServicePriority.NORMAL;
-    }
-
-    private static int compareService(WithResourcePath a, WithResourcePath b) {
-        final ServicePriority priorityA = getPriority(a);
-        final ServicePriority priorityB = getPriority(b);
-
-        int cmp = priorityA.compareTo(priorityB);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        cmp = a.resourcePath().compareTo(b.resourcePath());
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        // never happen
-        throw new IllegalStateException("Duplicate service: " + a.resourcePath());
     }
 
     @RequiredArgsConstructor
@@ -114,7 +104,7 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
 
             final List<S> sortedServices = services.values()
                 .stream()
-                .sorted(AbstractSpiRegistry::compareService)
+                .sorted(SERVICE_COMPARATOR)
                 .collect(Collectors.toList());
 
             final List<S> mustServices = sortedServices.stream()

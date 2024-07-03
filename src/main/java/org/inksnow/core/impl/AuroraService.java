@@ -85,7 +85,7 @@ public class AuroraService implements ServiceApi {
         for (S service : services) {
             if (!TestableUtil.test(service)) {
                 pendingMessages.add("§8|§e [AuroraCore] §c跳过注册 §a" + registry.friendlyName() + " "
-                    + service.resourcePath() + "§c: §a" + service.getClass().getName() + " §c未通过测试");
+                    + service.resourcePath() + " " + service.getClass().getName() + " §c未通过测试");
                 continue;
             }
             registry.register(service);

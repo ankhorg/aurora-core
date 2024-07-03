@@ -9,4 +9,10 @@ import java.util.List;
 public class RuntimeManifest {
     List<DownloadEntry> api;
     List<DownloadEntry> impl;
+
+    List<String> parentOnly;
+    List<String> selfOnly;
+    List<String> parentThenSelf;
+    List<String> selfThenParent;
+    List<String> disabled;
 }

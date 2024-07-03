@@ -13,6 +13,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.cputil.AuroraDownloader;
 import org.inksnow.cputil.UnsafeUtil;
 import org.inksnow.cputil.classloader.AuroraClassLoader;
+import org.inksnow.cputil.classloader.LoadPolicy;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -109,6 +110,11 @@ public final class AuroraCorePlugin extends JavaPlugin {
                     stream.forEach(addImplPath);
                 }
             }
+            config.parentOnly().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_ONLY));
+            config.selfOnly().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_ONLY));
+            config.parentThenSelf().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_THEN_SELF));
+            config.selfThenParent().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_THEN_PARENT));
+            config.disabled().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.DISABLED));
         } else {
             final RuntimeManifest runtimeManifest;
             try (Reader reader = new InputStreamReader(new URL(config.updateCenter()).openStream(), StandardCharsets.UTF_8)) {
@@ -117,6 +123,12 @@ public final class AuroraCorePlugin extends JavaPlugin {
             final AuroraDownloader downloader = new AuroraDownloader(Paths.get("plugins", ".aurora"));
             downloader.downloadAll(runtimeManifest.api()).forEach(addApiPath);
             downloader.downloadAll(runtimeManifest.impl()).forEach(addImplPath);
+
+            runtimeManifest.parentOnly().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_ONLY));
+            runtimeManifest.selfOnly().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_ONLY));
+            runtimeManifest.parentThenSelf().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.PARENT_THEN_SELF));
+            runtimeManifest.selfThenParent().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.SELF_THEN_PARENT));
+            runtimeManifest.disabled().forEach(it-> implClassLoaderBuilder.loadPolicy(it, LoadPolicy.DISABLED));
         }
 
         return Class.forName(AURORA_CORE_CLASS_NAME, false, implClassLoaderBuilder.build());

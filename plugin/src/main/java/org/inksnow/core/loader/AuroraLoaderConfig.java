@@ -13,10 +13,21 @@ public class AuroraLoaderConfig {
     List<String> localApiPaths;
     List<String> localImplPaths;
 
+    List<String> parentOnly;
+    List<String> selfOnly;
+    List<String> parentThenSelf;
+    List<String> selfThenParent;
+    List<String> disabled;
+
     public static AuroraLoaderConfig createDefault() {
         return new AuroraLoaderConfig(
             "https://r.irepo.space/aurora/core/manifest.json",
             false,
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList()
         );

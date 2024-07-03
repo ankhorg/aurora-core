@@ -1,8 +1,11 @@
 package org.inksnow.core.impl;
 
+import com.google.common.base.Preconditions;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -12,123 +15,101 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.inksnow.core.api.Aurora;
-import org.inksnow.core.api.AuroraApi;
-import org.inksnow.core.api.spi.Namespaced;
-import org.inksnow.core.impl.item.AuroraItemSpi;
-import org.inksnow.core.impl.spi.AbstractSpiRegistry;
-import org.inksnow.core.impl.util.IdentityBox;
-import org.inksnow.core.impl.util.TestableUtil;
-import org.inksnow.core.impl.worldtag.AuroraWorldTagSpi;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.inksnow.core.Aurora;
+import org.inksnow.core.AuroraApi;
+import org.inksnow.core.util.Builder;
+import org.inksnow.cputil.logger.AuroraLoggerFactory;
+import org.inksnow.cputil.logger.impl.parent.AuroraParentLogger;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.Objects;
 import java.util.function.Consumer;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
 public class AuroraCore implements AuroraApi, Listener {
-  private static final @NonNull Consumer<@NonNull String> printer = Bukkit.getConsoleSender()::sendMessage;
-  private static AuroraCore instance;
+    public static final Consumer<String> printer = Bukkit.getConsoleSender()::sendMessage;
+    private static @MonotonicNonNull AuroraCore instance;
+    @Getter
+    private static boolean serverBootstrap = false;
 
-  private final @NonNull Map<@NonNull IdentityBox<@NonNull Plugin>, @NonNull Boolean> pluginScanned = new WeakHashMap<>();
-  private final @NonNull JavaPlugin plugin;
-  @Getter
-  private final @NonNull AuroraItemSpi item = new AuroraItemSpi();
-  @Getter
-  private final @NonNull AuroraWorldTagSpi worldTag = new AuroraWorldTagSpi();
-  private final @NonNull AbstractSpiRegistry @NonNull [] registries = {
-      item, worldTag
-  };
-
-  private boolean serverBootstrap = false;
-
-  public static void onInit(@NonNull JavaPlugin plugin) {
-    instance = new AuroraCore(plugin);
-    Aurora.api(instance);
-  }
-
-  public static void onLoad(@NonNull JavaPlugin plugin) {
-    printer.accept("§8+-----------------------------------------------------");
-    printer.accept("§8|§e [AuroraCore] 正在加载§a AuroraCore " + plugin.getDescription().getVersion());
-    printer.accept("§8|§e [AuroraCore] 作者:§a h6EX4j");
-    printer.accept("§8|§e [AuroraCore] 企鹅:§a 812276666  §e 群:§a 946882957");
-    printer.accept("§8+-----------------------------------------------------");
-
-    for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {
-      instance.onPluginEnabled(new PluginEnableEvent(scanPlugin));
-    }
-  }
-
-  public static void onEnable(@NonNull JavaPlugin plugin) {
-    printer.accept("§8+-----------------------------------------------------");
-    printer.accept("§8|§e [AuroraCore] 正在加载§a AuroraCore " + plugin.getDescription().getVersion());
-
-    Bukkit.getPluginManager().registerEvents(instance, plugin);
-    Bukkit.getScheduler().runTask(plugin, () -> instance.serverBootstrap = true);
-
-    printer.accept("§8+-----------------------------------------------------");
-    for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {
-      instance.onPluginEnabled(new PluginEnableEvent(scanPlugin));
-    }
-  }
-
-  public static void onDisable(@NonNull JavaPlugin plugin) {
-  }
-
-  public static boolean onCommand(@NonNull JavaPlugin plugin, @NonNull CommandSender sender, @NonNull Command command, @NonNull String label, @NonNull String @NonNull [] args) {
-    return false;
-  }
-
-  public static List<@NonNull String> onTabComplete(JavaPlugin plugin, @NonNull CommandSender sender, @NonNull Command command, @NonNull String alias, @NonNull String @NonNull [] args) {
-    return null;
-  }
-
-  @Override
-  public void scanPlugin(@NonNull Plugin targetPlugin) {
-    if (pluginScanned.putIfAbsent(new IdentityBox<>(plugin), true) != null) {
-      return;
-    }
-    if (serverBootstrap) {
-      printer.accept("§8+-----------------------------------------------------");
-      printer.accept("§8|§e [AuroraCore] 发现插件热加载§a " + targetPlugin.getName() + " §e正在注册");
+    static {
+        AuroraLoggerFactory.instance().provider(new AuroraParentLogger("aurora.core.loader.slf4j"));
     }
 
-    List<String> pendingMessages = new ArrayList<>();
+    private final Injector injector;
 
-    ClassLoader classLoader;
-    if (plugin == targetPlugin) {
-      classLoader = AuroraCore.class.getClassLoader();
-    } else {
-      classLoader = targetPlugin.getClass().getClassLoader();
+    @Getter
+    private final JavaPlugin plugin;
+
+    @Getter
+    private final AuroraService service;
+
+    public static void onInit(JavaPlugin plugin) {
+        final Injector bootstrapInjector = Guice.createInjector(
+            new AuroraCoreModule(),
+            binder -> binder.bind(JavaPlugin.class).toInstance(plugin)
+        );
+        final AuroraCore instance = bootstrapInjector.getInstance(AuroraCore.class);
+        Aurora.api(instance);
+        AuroraCore.instance = instance;
     }
 
-    for (AbstractSpiRegistry<Namespaced> registry : registries) {
-      List<? extends Namespaced> services = registry.loader().load(classLoader);
-      for (Namespaced service : services) {
-        if (!TestableUtil.test(service)) {
-          pendingMessages.add("§8|§e [AuroraCore] §c跳过注册 §a" + registry.friendlyName() + " "
-              + service.namespace() + "§c: §a" + service.getClass().getName() + " §c未通过测试");
-          continue;
+    public static void onLoad(JavaPlugin plugin) {
+        Preconditions.checkState(instance != null, "AuroraCore not initialized");
+
+        printer.accept("§8+-----------------------------------------------------");
+        printer.accept("§8|§e [AuroraCore] 正在加载§a AuroraCore " + plugin.getDescription().getVersion());
+        printer.accept("§8|§e [AuroraCore] 作者:§a h6EX4j");
+        printer.accept("§8|§e [AuroraCore] 企鹅:§a 812276666  §e 群:§a 946882957");
+        printer.accept("§8+-----------------------------------------------------");
+        for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {
+            instance.onPluginEnabled(new PluginEnableEvent(scanPlugin));
         }
-        registry.registerForce(service);
-        pendingMessages.add("§8|§e [AuroraCore] 已注册 §a" + registry.friendlyName() + " "
-            + service.namespace() + "§e: §a" + service.getClass().getName());
-      }
     }
 
-    if (serverBootstrap) {
-      printer.accept("§8+-----------------------------------------------------");
-    } else if (!pendingMessages.isEmpty()) {
-      printer.accept("§8|§e [AuroraCore] 正在扫描插件 §a" + targetPlugin.getName());
-      pendingMessages.forEach(printer);
-      printer.accept("§8+-----------------------------------------------------");
-    }
-  }
+    public static void onEnable(JavaPlugin plugin) {
+        Preconditions.checkState(instance != null, "AuroraCore not initialized");
 
-  @EventHandler
-  public void onPluginEnabled(@NonNull PluginEnableEvent event) {
-    scanPlugin(event.getPlugin());
-  }
+        printer.accept("§8+-----------------------------------------------------");
+        printer.accept("§8|§e [AuroraCore] 正在加载§a AuroraCore " + plugin.getDescription().getVersion());
+
+        Bukkit.getPluginManager().registerEvents(instance, plugin);
+        Bukkit.getScheduler().runTask(plugin, () -> serverBootstrap = true);
+
+        printer.accept("§8+-----------------------------------------------------");
+        for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {
+            instance.onPluginEnabled(new PluginEnableEvent(scanPlugin));
+        }
+    }
+
+    public static void onDisable(JavaPlugin plugin) {
+    }
+
+    public static boolean onCommand(JavaPlugin plugin, CommandSender sender, Command command, String label, String[] args) {
+        return false;
+    }
+
+    public static @Nullable List<String> onTabComplete(JavaPlugin plugin, CommandSender sender, Command command, String alias, String[] args) {
+        return null;
+    }
+
+    @EventHandler
+    public void onPluginEnabled(PluginEnableEvent event) {
+        service.scanPlugin(event.getPlugin());
+    }
+
+    @Override
+    public <B extends Builder<?, ?>> B createBuilder(Class<B> clazz) {
+        if (!Builder.class.isAssignableFrom(clazz)) {
+            throw new IllegalArgumentException("Builder class must implement Builder interface");
+        }
+        return injector.getInstance(clazz);
+    }
+
+    @Override
+    public <T> T getFactory(Class<T> clazz) {
+        return injector.getInstance(clazz);
+    }
 }

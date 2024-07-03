@@ -3,11 +3,21 @@ plugins {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
+    compileOnly(project(":api"))
+    compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT") {
+        exclude(group = "com.google.guava", module = "guava") // we need checkerframework
+    }
+    compileOnly("org.checkerframework.annotatedlib:guava:33.1.0.2-jre") {
+        exclude("com.google.code.findbugs", "jsr305")
+    }
 
-    api(project(":api"))
+    implementation("org.inksnow.cputil:logger:1.8")
+}
 
-    implementation("org.inksnow.cputil:logger:1.7")
+tasks.processResources {
+    filesMatching("plugin.yml") {
+        expand(project.properties)
+    }
 }
 
 tasks.shadowJar {

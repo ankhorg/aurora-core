@@ -1,13 +1,21 @@
 plugins {
+    // java base
     id("java")
     id("java-library")
     id("maven-publish")
+
+    // checks
+    id("checkstyle")
+    id("org.checkerframework") version "0.6.42"
 }
 
 allprojects {
     apply(plugin = "java")
     apply(plugin = "java-library")
     apply(plugin = "maven-publish")
+
+    apply(plugin = "checkstyle")
+    apply(plugin = "org.checkerframework")
 
     group = "org.inksnow.core"
     version = System.getenv("BUILD_NUMBER")
@@ -42,7 +50,23 @@ allprojects {
         }
     }
 
+    checkstyle {
+        toolVersion = "10.17.0"
+        configDirectory = rootProject.file(".checkstyle")
+    }
+
+    checkerFramework {
+        checkers = listOf(
+            "org.checkerframework.checker.nullness.NullnessChecker",
+            "org.checkerframework.checker.units.UnitsChecker"
+        )
+    }
+
     dependencies {
+        // annotations
+        compileOnly("org.checkerframework:checker-qual:3.45.0")
+        testCompileOnly("org.checkerframework:checker-qual:3.45.0")
+
         // lombok
         compileOnly("org.projectlombok:lombok:1.18.32")
         annotationProcessor("org.projectlombok:lombok:1.18.32")
@@ -84,15 +108,18 @@ allprojects {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT") {
+        exclude(group = "com.google.guava", module = "guava") // we need checkerframework
+    }
     compileOnly(project(":api"))
 
+    compileOnly("org.checkerframework.annotatedlib:guava:33.1.0.2-jre") {
+        exclude("com.google.code.findbugs", "jsr305")
+    }
     api("org.slf4j:slf4j-api:1.7.36")
-}
-
-tasks.processResources {
-    filesMatching("plugin.yml") {
-        expand(project.properties)
+    api("org.inksnow.cputil:logger:1.9")
+    api("com.google.inject:guice:7.0.0") {
+        exclude(group = "com.google.guava", module = "guava") // we use guava from spigot
     }
 }
 

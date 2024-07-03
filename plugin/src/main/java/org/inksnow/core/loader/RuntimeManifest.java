@@ -7,6 +7,6 @@ import java.util.List;
 
 @Value
 public class RuntimeManifest {
-  List<DownloadEntry> api;
-  List<DownloadEntry> impl;
+    List<DownloadEntry> api;
+    List<DownloadEntry> impl;
 }

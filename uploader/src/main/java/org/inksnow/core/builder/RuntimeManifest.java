@@ -10,9 +10,9 @@ import java.util.List;
 @Value
 @Builder
 public class RuntimeManifest {
-  @Singular("api")
-  List<DownloadEntry> api;
+    @Singular("api")
+    List<DownloadEntry> api;
 
-  @Singular("impl")
-  List<DownloadEntry> impl;
+    @Singular("impl")
+    List<DownloadEntry> impl;
 }

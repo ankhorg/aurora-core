@@ -46,7 +46,7 @@ public class AuroraCore implements AuroraApi, Listener {
     private final AuroraService service;
 
     public static AuroraCore instance() {
-        AuroraCore instance = AuroraCore.instance;
+        @Nullable AuroraCore instance = AuroraCore.instance;
         if (instance != null) {
             return instance;
         }

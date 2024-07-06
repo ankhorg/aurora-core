@@ -4,11 +4,12 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.Getter;
 import lombok.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.impl.spi.AbstractSpiRegistry;
 import org.inksnow.core.resource.ResourcePath;
 import org.inksnow.core.spi.item.ItemProvider;
 import org.inksnow.core.spi.item.ItemSpi;
+
+import java.util.Optional;
 
 @Singleton
 @Getter
@@ -24,11 +25,7 @@ public final class AuroraItemSpi extends AbstractSpiRegistry<ItemProvider.@NonNu
     }
 
     @Override
-    public @Nullable ItemProvider getProvider(@NonNull ResourcePath resourcePath, @NonNull String key) {
-        final ItemProvider.@Nullable Factory factory = get(resourcePath);
-        if (factory == null) {
-            return null;
-        }
-        return factory.get(key);
+    public Optional<ItemProvider> getProvider(@NonNull ResourcePath resourcePath, @NonNull String key) {
+        return get(resourcePath).flatMap(factory -> factory.get(key));
     }
 }

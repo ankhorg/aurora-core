@@ -18,17 +18,18 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements SpiRegistry<S> {
     private static final Comparator<WithResourcePath> SERVICE_COMPARATOR =
-        Comparator.<WithResourcePath, ServicePriority>comparing(AbstractSpiRegistry::getPriority)
-            .thenComparing(WithResourcePath::resourcePath)
-            .thenComparing(it -> {
-                throw new IllegalStateException("Unexpected");
-            });
+            Comparator.<WithResourcePath, ServicePriority>comparing(AbstractSpiRegistry::getPriority)
+                    .thenComparing(WithResourcePath::resourcePath)
+                    .thenComparing(it -> {
+                        throw new IllegalStateException("Unexpected");
+                    });
 
     @Getter
     private final AuroraServiceLoader<S> loader;
@@ -41,11 +42,17 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
         this.selectors = new ConcurrentHashMap<>();
     }
 
+    private static ServicePriority getPriority(WithResourcePath service) {
+        return service instanceof WithServicePriority
+                ? ((WithServicePriority) service).priority()
+                : ServicePriority.NORMAL;
+    }
+
     public abstract String friendlyName();
 
     @Override
-    public @Nullable S get(ResourcePath resourcePath) {
-        return services.get(resourcePath);
+    public Optional<S> get(ResourcePath resourcePath) {
+        return Optional.ofNullable(services.get(resourcePath));
     }
 
     @Override
@@ -63,12 +70,6 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
         for (ResourcePath subPath : resourcePath.allSubPaths()) {
             selectors.computeIfAbsent(subPath, ServiceSelector::new).add(service);
         }
-    }
-
-    private static ServicePriority getPriority(WithResourcePath service) {
-        return service instanceof WithServicePriority
-            ? ((WithServicePriority) service).priority()
-            : ServicePriority.NORMAL;
     }
 
     @RequiredArgsConstructor
@@ -110,13 +111,13 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
             }
 
             final List<S> sortedServices = services.values()
-                .stream()
-                .sorted(SERVICE_COMPARATOR)
-                .collect(Collectors.toList());
+                    .stream()
+                    .sorted(SERVICE_COMPARATOR)
+                    .collect(Collectors.toList());
 
             final List<S> mustServices = sortedServices.stream()
-                .filter(it -> getPriority(it) == ServicePriority.MUST)
-                .collect(Collectors.toList());
+                    .filter(it -> getPriority(it) == ServicePriority.MUST)
+                    .collect(Collectors.toList());
 
             S selected;
 
@@ -129,8 +130,8 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
                 AuroraCore.printer.accept("§8+-----------------------------------------------------");
                 AuroraCore.printer.accept("§8|§e [AuroraCore] §a未使用的服务：");
                 sortedServices.stream()
-                    .filter(s -> s != selected)
-                    .forEach(s -> AuroraCore.printer.accept("§8|§e [AuroraCore] §e" + s.resourcePath() + " " + s.getClass().getName()));
+                        .filter(s -> s != selected)
+                        .forEach(s -> AuroraCore.printer.accept("§8|§e [AuroraCore] §e" + s.resourcePath() + " " + s.getClass().getName()));
                 AuroraCore.printer.accept("§8+-----------------------------------------------------");
                 return selected;
             } else if (mustServices.size() > 1) {
@@ -141,8 +142,8 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
                 AuroraCore.printer.accept("§8+-----------------------------------------------------");
                 AuroraCore.printer.accept("§8|§e [AuroraCore] §a未使用的服务：");
                 sortedServices.stream()
-                    .filter(s -> getPriority(s) != ServicePriority.MUST)
-                    .forEach(s -> AuroraCore.printer.accept("§8|§e [AuroraCore] §e" + s.resourcePath() + " " + s.getClass().getName()));
+                        .filter(s -> getPriority(s) != ServicePriority.MUST)
+                        .forEach(s -> AuroraCore.printer.accept("§8|§e [AuroraCore] §e" + s.resourcePath() + " " + s.getClass().getName()));
                 AuroraCore.printer.accept("§8+-----------------------------------------------------");
                 throw new IllegalStateException("Multiple MUST services found: " + mustServices);
             }
@@ -155,8 +156,8 @@ public abstract class AbstractSpiRegistry<S extends WithResourcePath> implements
             AuroraCore.printer.accept("§8+-----------------------------------------------------");
             AuroraCore.printer.accept("§8|§e [AuroraCore] §a未使用的服务：");
             sortedServices.stream()
-                .filter(s -> s != selected)
-                .forEach(s -> AuroraCore.printer.accept("§8|§e [AuroraCore] §e" + s.resourcePath() + " " + s.getClass().getName()));
+                    .filter(s -> s != selected)
+                    .forEach(s -> AuroraCore.printer.accept("§8|§e [AuroraCore] §e" + s.resourcePath() + " " + s.getClass().getName()));
             AuroraCore.printer.accept("§8+-----------------------------------------------------");
             return selected;
         }

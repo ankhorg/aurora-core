@@ -26,18 +26,31 @@ public class AuroraService implements ServiceApi {
     private final AuroraWorldTagSpi worldTag;
 
     private final Map<IdentityBox<Plugin>, Boolean> pluginScanned;
-    private final AbstractSpiRegistry<?> [] registries;
+    private final AbstractSpiRegistry<?>[] registries;
 
     @Inject
     private AuroraService(AuroraItemSpi item, AuroraWorldTagSpi worldTag) {
         this.item = item;
         this.worldTag = worldTag;
         this.pluginScanned = new WeakHashMap<>();
-        this.registries = new AbstractSpiRegistry<?>[] {
-            item, worldTag
+        this.registries = new AbstractSpiRegistry<?>[]{
+                item, worldTag
         };
     }
 
+    private static <S extends WithResourcePath> void register(AbstractSpiRegistry<S> registry, ClassLoader classLoader, List<String> pendingMessages) {
+        final List<S> services = registry.loader().load(classLoader);
+        for (S service : services) {
+            if (!TestableUtil.test(service)) {
+                pendingMessages.add("§8|§e [AuroraCore] §c跳过注册 §a" + registry.friendlyName() + " "
+                        + service.resourcePath() + " " + service.getClass().getName() + " §c未通过测试");
+                continue;
+            }
+            registry.register(service);
+            pendingMessages.add("§8|§e [AuroraCore] 已注册 §a" + registry.friendlyName() + " "
+                    + service.resourcePath() + "§e §a" + service.getClass().getName());
+        }
+    }
 
     @Override
     public void scanPlugin(Plugin targetPlugin) {
@@ -72,20 +85,6 @@ public class AuroraService implements ServiceApi {
             AuroraCore.printer.accept("§8|§e [AuroraCore] 正在扫描插件 §a" + targetPlugin.getName());
             pendingMessages.forEach(AuroraCore.printer);
             AuroraCore.printer.accept("§8+-----------------------------------------------------");
-        }
-    }
-
-    private static <S extends WithResourcePath> void register(AbstractSpiRegistry<S> registry, ClassLoader classLoader, List<String> pendingMessages) {
-        final List<S> services = registry.loader().load(classLoader);
-        for (S service : services) {
-            if (!TestableUtil.test(service)) {
-                pendingMessages.add("§8|§e [AuroraCore] §c跳过注册 §a" + registry.friendlyName() + " "
-                    + service.resourcePath() + " " + service.getClass().getName() + " §c未通过测试");
-                continue;
-            }
-            registry.register(service);
-            pendingMessages.add("§8|§e [AuroraCore] 已注册 §a" + registry.friendlyName() + " "
-                + service.resourcePath() + "§e §a" + service.getClass().getName());
         }
     }
 }

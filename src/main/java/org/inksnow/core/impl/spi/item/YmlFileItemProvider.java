@@ -11,6 +11,7 @@ import org.inksnow.core.spi.item.ItemProvider;
 import org.inksnow.core.spi.item.SaveableItemProvider;
 
 import java.io.File;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public final class YmlFileItemProvider implements SaveableItemProvider {
@@ -20,8 +21,8 @@ public final class YmlFileItemProvider implements SaveableItemProvider {
     private final ItemStack itemStack;
 
     @Override
-    public ItemStack create() {
-        return itemStack.clone();
+    public Optional<ItemStack> create() {
+        return Optional.of(itemStack.clone());
     }
 
     @SneakyThrows
@@ -32,7 +33,7 @@ public final class YmlFileItemProvider implements SaveableItemProvider {
             final @Nullable File parentFile = file.getParentFile();
             if (parentFile != null && !parentFile.exists()) {
                 Preconditions.checkState(parentFile.mkdirs(),
-                    "Failed to create directory: %s", parentFile);
+                        "Failed to create directory: %s", parentFile);
             }
         }
         final YamlConfiguration configuration = new YamlConfiguration();
@@ -44,18 +45,18 @@ public final class YmlFileItemProvider implements SaveableItemProvider {
         private static final ResourcePath PATH = ResourcePath.of("aurora:ymlfile");
 
         @Override
-        public @Nullable ItemProvider get(String key) {
+        public Optional<ItemProvider> get(String key) {
             final File file = new File(SAVE_DIRECTORY, key + ".yml");
             if (!file.exists()) {
-                return null;
+                return Optional.empty();
             }
 
             final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
             final ItemStack itemStack = configuration.getItemStack("item");
             if (itemStack == null) {
-                return null;
+                return Optional.empty();
             }
-            return new YmlFileItemProvider(key, itemStack);
+            return Optional.of(new YmlFileItemProvider(key, itemStack));
         }
 
         @Override

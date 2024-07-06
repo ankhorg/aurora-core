@@ -5,6 +5,7 @@ import org.inksnow.core.resource.ResourcePath;
 import org.inksnow.core.resource.WithResourcePath;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a registry for SPIs.
@@ -20,9 +21,9 @@ public interface SpiRegistry<S extends WithResourcePath> {
      * {@code get(ResourcePath.of("name"))}.
      *
      * @param resourcePath the namespace of the SPI
-     * @return the SPI with the specified namespace, or {@code null} if not found
+     * @return the SPI with the specified namespace
      */
-    @Nullable S get(ResourcePath resourcePath);
+    Optional<S> get(ResourcePath resourcePath);
 
     /**
      * Gets all the services.
@@ -39,11 +40,8 @@ public interface SpiRegistry<S extends WithResourcePath> {
      * @throws IllegalStateException if the SPI is not found
      */
     default S require(ResourcePath resourcePath) throws IllegalStateException {
-        final @Nullable S service = get(resourcePath);
-        if (service == null) {
-            throw new IllegalStateException("Service not found: " + resourcePath);
-        }
-        return service;
+        return get(resourcePath)
+            .orElseThrow(() -> new IllegalStateException("Service not found: " + resourcePath));
     }
 
     /**

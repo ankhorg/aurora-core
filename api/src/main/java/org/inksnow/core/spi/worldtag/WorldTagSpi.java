@@ -18,10 +18,8 @@ public interface WorldTagSpi extends SpiRegistry<WorldTagProvider> {
      * @return if the world has the tag
      */
     default boolean hasTag(World world, ResourcePath path, String tag) {
-        final @Nullable WorldTagProvider provider = get(path);
-        if (provider == null) {
-            return false;
-        }
-        return provider.hasTag(world, tag);
+        return get(path)
+            .map(provider -> provider.hasTag(world, tag))
+            .orElse(false);
     }
 }

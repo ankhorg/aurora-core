@@ -10,8 +10,8 @@ dependencies {
     compileOnly("org.checkerframework.annotatedlib:guava:33.1.0.2-jre") {
         exclude("com.google.code.findbugs", "jsr305")
     }
-
     implementation("org.inksnow.cputil:logger:1.8")
+    implementation("io.leangen.geantyref:geantyref:1.3.15")
 }
 
 tasks.processResources {

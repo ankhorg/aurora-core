@@ -23,6 +23,14 @@ public final class AuroraResourcePath implements ResourcePath {
         this.asString = String.join(":", elements);
     }
 
+    private static int hashCodeImpl(List<String> elements) {
+        int hashCode = 0;
+        for (String element : elements) {
+            hashCode = 31 * hashCode + element.hashCode();
+        }
+        return hashCode;
+    }
+
     @Override
     public String asString() {
         return asString;
@@ -35,14 +43,6 @@ public final class AuroraResourcePath implements ResourcePath {
 
     @Override
     public int hashCode() {
-        return hashCode;
-    }
-
-    private static int hashCodeImpl(List<String> elements) {
-        int hashCode = 0;
-        for (String element : elements) {
-            hashCode = 31 * hashCode + element.hashCode();
-        }
         return hashCode;
     }
 

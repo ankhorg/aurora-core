@@ -4,6 +4,8 @@ import org.bukkit.inventory.ItemStack;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.resource.WithResourcePath;
 
+import java.util.Optional;
+
 /**
  * Provides an item stack.
  */
@@ -13,7 +15,7 @@ public interface ItemProvider {
      *
      * @return the item stack
      */
-    @Nullable ItemStack create();
+    Optional<ItemStack> create();
 
     /**
      * The factory for item providers.
@@ -25,6 +27,6 @@ public interface ItemProvider {
          * @param name the name
          * @return the item provider, or null if not found
          */
-        @Nullable ItemProvider get(String name);
+        Optional<ItemProvider> get(String name);
     }
 }

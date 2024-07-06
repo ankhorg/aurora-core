@@ -1,13 +1,21 @@
 package org.inksnow.core.data.key;
 
+import io.leangen.geantyref.TypeToken;
+import org.checkerframework.common.returnsreceiver.qual.This;
+import org.inksnow.core.data.value.ListValue;
+import org.inksnow.core.data.value.MapValue;
+import org.inksnow.core.data.value.SetValue;
 import org.inksnow.core.data.value.Value;
+import org.inksnow.core.resource.ResourcePath;
 import org.inksnow.core.resource.WithResourcePath;
+import org.inksnow.core.util.Builder;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a key to an underlying {@link Value} such that the underlying
@@ -45,4 +53,26 @@ public interface Key<V extends Value<?>> extends WithResourcePath {
      * @return The element generic type
      */
     Type elementType();
+
+    interface Builder<E, V extends Value<E>> extends org.inksnow.core.util.Builder<Key<V>, Builder<E, V>> {
+        @This Builder<E, V> resourcePath(ResourcePath resourcePath);
+
+        <T, B extends Value<T>> @This Builder<T, B> type(TypeToken<B> token);
+
+        <T> @This Builder<T, Value<T>> elementType(Class<T> type);
+
+        <T> @This Builder<T, Value<T>> elementType(TypeToken<T> type);
+
+        <T> @This Builder<List<T>, ListValue<T>> listElementType(Class<T> type);
+
+        <T> @This Builder<List<T>, ListValue<T>> listElementType(TypeToken<T> type);
+
+        <T> @This Builder<Set<T>, SetValue<T>> setElementType(Class<T> type);
+
+        <T> @This Builder<Set<T>, SetValue<T>> setElementType(TypeToken<T> type);
+
+        <K, V1> @This Builder<Map<K, V1>, MapValue<K, V1>> mapElementType(Class<K> keyType, Class<V1> valueType);
+
+        <K, V1> @This Builder<Map<K, V1>, MapValue<K, V1>> mapElementType(TypeToken<K> keyType, TypeToken<V1> valueType);
+    }
 }

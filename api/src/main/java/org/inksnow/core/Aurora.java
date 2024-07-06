@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.inksnow.core.data.DataApi;
 import org.inksnow.core.spi.ServiceApi;
 import org.inksnow.core.util.Builder;
 
@@ -59,6 +60,10 @@ public final class Aurora {
      */
     public static ServiceApi service() {
         return api().service();
+    }
+
+    public static DataApi data() {
+        return api().data();
     }
 
     /**

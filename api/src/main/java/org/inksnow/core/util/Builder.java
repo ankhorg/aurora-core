@@ -32,5 +32,5 @@ public interface Builder<T, B extends Builder<T, B>> {
      *
      * @return the object
      */
-    @This T build();
+    T build();
 }

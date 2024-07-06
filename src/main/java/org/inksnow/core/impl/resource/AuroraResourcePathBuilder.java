@@ -40,7 +40,8 @@ public final class AuroraResourcePathBuilder implements ResourcePath.Builder {
         return new AuroraResourcePath(elements);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "AuroraResourcePathBuilder" + this.elements;
     }
 }

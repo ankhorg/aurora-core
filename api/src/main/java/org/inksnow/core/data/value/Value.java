@@ -1,6 +1,12 @@
 package org.inksnow.core.data.value;
 
+import org.inksnow.core.Aurora;
 import org.inksnow.core.data.key.Key;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * The abstract base interface for all of the "Value API". In short, a
@@ -27,6 +33,254 @@ import org.inksnow.core.data.key.Key;
  * @param <E> The type of element wrapped by this value
  */
 public interface Value<E> {
+    static Value.Factory factory() {
+        return Aurora.getFactory(Value.Factory.class);
+    }
+
+    /**
+     * Constructs a mutable {@link Value} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed mutable value
+     */
+    static <E> Value.Mutable<E> mutableOf(Key<? extends Value<E>> key, E element) {
+        return Value.genericMutableOf(key, element).asMutable();
+    }
+
+    /**
+     * Constructs a mutable {@link Value} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed mutable value
+     */
+    static <E> Value.Mutable<E> mutableOf(Supplier<? extends Key<? extends Value<E>>> key, E element) {
+        return Value.mutableOf(key.get(), element);
+    }
+
+    /**
+     * Constructs an immutable {@link Value} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed immutable value
+     */
+    static <E> Value.Immutable<E> immutableOf(Key<? extends Value<E>> key, E element) {
+        return Value.genericImmutableOf(key, element).asImmutable();
+    }
+
+    /**
+     * Constructs an immutable {@link Value} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed immutable value
+     */
+    static <E> Value.Immutable<E> immutableOf(Supplier<? extends Key<? extends Value<E>>> key, E element) {
+        return Value.immutableOf(key.get(), element);
+    }
+
+    /**
+     * Constructs a mutable {@link ListValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed mutable value
+     */
+    static <E> ListValue.Mutable<E> mutableOf(Key<? extends ListValue<E>> key, List<E> element) {
+        return Value.genericMutableOf(key, element).asMutable();
+    }
+
+    /**
+     * Constructs a mutable {@link ListValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed mutable value
+     */
+    static <E> ListValue.Mutable<E> mutableOf(Supplier<? extends Key<? extends ListValue<E>>> key, List<E> element) {
+        return Value.mutableOf(key.get(), element);
+    }
+
+    /**
+     * Constructs an immutable {@link ListValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed immutable value
+     */
+    static <E> ListValue.Immutable<E> immutableOf(Key<? extends ListValue<E>> key, List<E> element) {
+        return Value.genericImmutableOf(key, element).asImmutable();
+    }
+
+    /**
+     * Constructs an immutable {@link ListValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed immutable value
+     */
+    static <E> ListValue.Immutable<E> immutableOf(Supplier<? extends Key<? extends ListValue<E>>> key, List<E> element) {
+        return Value.immutableOf(key.get(), element);
+    }
+
+    /**
+     * Constructs a mutable {@link SetValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed mutable value
+     */
+    static <E> SetValue.Mutable<E> mutableOf(Key<? extends SetValue<E>> key, Set<E> element) {
+        return Value.genericMutableOf(key, element).asMutable();
+    }
+
+    /**
+     * Constructs a mutable {@link SetValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed mutable value
+     */
+    static <E> SetValue.Mutable<E> mutableOf(Supplier<? extends Key<? extends SetValue<E>>> key, Set<E> element) {
+        return Value.mutableOf(key.get(), element);
+    }
+
+    /**
+     * Constructs an immutable {@link SetValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed immutable value
+     */
+    static <E> SetValue.Immutable<E> immutableOf(Key<? extends SetValue<E>> key, Set<E> element) {
+        return Value.genericImmutableOf(key, element).asImmutable();
+    }
+
+    /**
+     * Constructs an immutable {@link SetValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <E> The element type
+     * @return The constructed immutable value
+     */
+    static <E> SetValue.Immutable<E> immutableOf(Supplier<? extends Key<? extends SetValue<E>>> key, Set<E> element) {
+        return Value.immutableOf(key.get(), element);
+    }
+
+    /**
+     * Constructs a mutable {@link MapValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <K> The map key type
+     * @param <V> The map value type
+     * @return The constructed mutable value
+     */
+    static <K, V> MapValue.Mutable<K, V> mutableOf(Key<? extends MapValue<K, V>> key, Map<K, V> element) {
+        return Value.genericMutableOf(key, element).asMutable();
+    }
+
+    /**
+     * Constructs a mutable {@link MapValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <K> The map key type
+     * @param <V> The map value type
+     * @return The constructed mutable value
+     */
+    static <K, V> MapValue.Mutable<K, V> mutableOf(Supplier<? extends Key<? extends MapValue<K, V>>> key, Map<K, V> element) {
+        return Value.mutableOf(key.get(), element);
+    }
+
+    /**
+     * Constructs an immutable {@link MapValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <K> The map key type
+     * @param <V> The map value type
+     * @return The constructed immutable value
+     */
+    static <K, V> MapValue.Immutable<K, V> immutableOf(Key<? extends MapValue<K, V>> key, Map<K, V> element) {
+        return Value.genericImmutableOf(key, element).asImmutable();
+    }
+
+    /**
+     * Constructs an immutable {@link MapValue} of the appropriate type based
+     * on the given {@link Key} and the element.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <K> The map key type
+     * @param <V> The map value type
+     * @return The constructed immutable value
+     */
+    static <K, V> MapValue.Immutable<K, V> immutableOf(Supplier<? extends Key<? extends MapValue<K, V>>> key, Map<K, V> element) {
+        return Value.immutableOf(key.get(), element);
+    }
+
+    /**
+     * Constructs a {@link Value} of the appropriate type based
+     * on the given {@link Key} and the element. The returned
+     * {@link Value} is guaranteed {@link Mutable}, this means that
+     * calling {@link #asMutable()} will return itself.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <V> The value type
+     * @param <E> The element type
+     * @return The constructed mutable value
+     */
+    static <V extends Value<E>, E> V genericMutableOf(Key<V> key, E element) {
+        return factory().mutableOf(key, element);
+    }
+
+    /**
+     * Constructs a {@link Value} of the appropriate type based
+     * on the given {@link Key} and the element. The returned
+     * {@link Value} is guaranteed {@link Immutable}, this means that
+     * calling {@link #asImmutable()} will return itself.
+     *
+     * @param key The key
+     * @param element The element
+     * @param <V> The value type
+     * @param <E> The element type
+     * @return The constructed immutable value
+     */
+    static <V extends Value<E>, E> V genericImmutableOf(Key<V> key, E element) {
+        return factory().immutableOf(key, element);
+    }
+
     /**
      * Gets the held value.
      *
@@ -40,6 +294,36 @@ public interface Value<E> {
      * @return The key for this value
      */
     E get();
+
+    /**
+     * Retrieves a mutable form of this value. Due to the vague nature of the
+     * value itself, some cases can already provide a {@link Mutable} instance
+     * where this would simply return itself. In other cases, where the retrieved
+     * value is an {@link Immutable} instance, a new mutable value is created
+     * with the same key and values.
+     *
+     * @return A mutable value
+     */
+    Mutable<E> asMutable();
+
+    /**
+     * Retrieves a copy in the mutable form of this value. The new is created
+     * with the same key and values.
+     *
+     * @return A mutable value
+     */
+    Mutable<E> asMutableCopy();
+
+    /**
+     * Retrieves an immutable form of this value. Due to the vague nature of the
+     * value itself, some cases can already provide a {@link Immutable} instance
+     * where this would simply return itself. In other cases, where the retrieved
+     * value is a {@link Mutable} instance, a new immutable value is created
+     * with the same key and values.
+     *
+     * @return An immutable value
+     */
+    Immutable<E> asImmutable();
 
     /**
      * Represents a type of {@link Value} that is mutable. Simply put, the
@@ -75,7 +359,7 @@ public interface Value<E> {
      * @param <E> The type of value
      */
     interface Immutable<E> extends Value<E> {
-
+        Immutable<E> with(E value);
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.inksnow.core;
 
+import org.inksnow.core.data.DataApi;
 import org.inksnow.core.spi.ServiceApi;
 import org.inksnow.core.util.Builder;
 
@@ -13,6 +14,8 @@ public interface AuroraApi {
      * @return the service API
      */
     ServiceApi service();
+
+    DataApi data();
 
     /**
      * Creates a builder.

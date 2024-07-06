@@ -1,3 +1,6 @@
+import org.inksnow.ankhinvoke.gradle.ApplyReferenceTask
+import org.inksnow.ankhinvoke.gradle.BuildMappingsTask
+
 plugins {
     // java base
     id("java")
@@ -6,7 +9,9 @@ plugins {
 
     // checks
     id("checkstyle")
-    id("org.checkerframework") version "0.6.42"
+
+    // ankh-invoke
+    id("org.inksnow.ankh-invoke-gradle-plugin") version "1.0.12-SNAPSHOT"
 }
 
 allprojects {
@@ -15,7 +20,6 @@ allprojects {
     apply(plugin = "maven-publish")
 
     apply(plugin = "checkstyle")
-    apply(plugin = "org.checkerframework")
 
     group = "org.inksnow.core"
     version = System.getenv("BUILD_NUMBER")
@@ -45,7 +49,7 @@ allprojects {
         }
         maven("https://r.irepo.space/maven") {
             content {
-                includeGroup("org.inksnow.cputil")
+                includeGroupAndSubgroups("org.inksnow")
             }
         }
     }
@@ -53,13 +57,6 @@ allprojects {
     checkstyle {
         toolVersion = "10.17.0"
         configDirectory = rootProject.file(".checkstyle")
-    }
-
-    checkerFramework {
-        checkers = listOf(
-            "org.checkerframework.checker.nullness.NullnessChecker",
-            "org.checkerframework.checker.units.UnitsChecker"
-        )
     }
 
     dependencies {
@@ -111,8 +108,11 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT") {
         exclude(group = "com.google.guava", module = "guava") // we need checkerframework
     }
-    compileOnly(project(":api"))
-
+    compileOnlyApi(project(":api"))
+    implementation("org.inksnow:ankh-invoke-bukkit:1.0.12-SNAPSHOT")
+    implementation("io.leangen.geantyref:geantyref:1.3.15")
+    implementation("com.github.luben:zstd-jni:1.5.6-3")
+    implementation("org.lz4:lz4-java:1.8.0")
     api("org.checkerframework.annotatedlib:guava:33.1.0.2-jre") {
         exclude("com.google.code.findbugs", "jsr305")
     }
@@ -123,11 +123,52 @@ dependencies {
     }
 }
 
+tasks.create<BuildMappingsTask>("build-mappings") {
+    registryName = "aurora-core"
+    outputDirectory = buildDir.resolve("cache/build-mappings")
+
+    mapping("nms", "1.20.6") {
+        predicates = arrayOf("craftbukkit_version:{v1_20_R4}")
+    }
+    mapping("nms", "1.20.4") {
+        predicates = arrayOf("craftbukkit_version:{v1_20_R3}")
+    }
+    mapping("nms", "1.20.2") {
+        predicates = arrayOf("craftbukkit_version:{v1_20_R2}")
+    }
+    mapping("nms", "1.20.1") {
+        predicates = arrayOf("craftbukkit_version:{v1_20_R1}")
+    }
+    mapping("nms", "1.19.4") {
+        predicates = arrayOf("craftbukkit_version:{v1_19_R3}")
+    }
+    mapping("nms", "1.18.2") {
+        predicates = arrayOf("craftbukkit_version:{v1_18_R2}")
+    }
+    mapping("nms", "1.17.1") {
+        predicates = arrayOf("craftbukkit_version:{v1_17_R1}")
+    }
+}
+
+tasks.processResources {
+    dependsOn(tasks.getByName("build-mappings"))
+
+    from(tasks.getByName("build-mappings").outputs)
+}
+
+tasks.create<ApplyReferenceTask>("apply-reference") {
+    dependsOn(tasks.jar)
+
+    appendReferencePackage("org.inksnow.core.impl.ref")
+    inputJars = tasks.jar.get().outputs.files
+    outputJar = file("$buildDir/runtimeLibs/aurora-core-$version.jar")
+}
+
 tasks.create<Copy>("copyLibs") {
     from(configurations.runtimeClasspath.get())
     into("$buildDir/runtimeLibs")
 }
 
 tasks.assemble {
-    dependsOn(tasks["copyLibs"])
+    dependsOn(tasks["apply-reference"], tasks["copyLibs"])
 }

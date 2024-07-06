@@ -43,7 +43,7 @@ public final class AuroraResourcePathFactory implements ResourcePath.Factory {
     }
 
     @Override
-    public ResourcePath of(@NonEmpty String ... elements) {
+    public ResourcePath of(@NonEmpty String... elements) {
         return of(Arrays.asList(elements));
     }
 

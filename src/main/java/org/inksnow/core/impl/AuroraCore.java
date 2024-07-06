@@ -18,25 +18,66 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.inksnow.ankhinvoke.AnkhInvoke;
+import org.inksnow.ankhinvoke.bukkit.asm.NmsVersionRemapper;
+import org.inksnow.ankhinvoke.bukkit.paper.PaperEnvironment;
+import org.inksnow.ankhinvoke.classpool.ClassLoaderPoolLoader;
+import org.inksnow.ankhinvoke.classpool.LoadedClassPoolLoader;
+import org.inksnow.ankhinvoke.classpool.ResourcePoolLoader;
+import org.inksnow.ankhinvoke.reference.ResourceReferenceSource;
 import org.inksnow.core.Aurora;
 import org.inksnow.core.AuroraApi;
+import org.inksnow.core.data.DataApi;
+import org.inksnow.core.impl.data.store.player.AuroraPlayerDataService;
+import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
 import org.inksnow.core.util.Builder;
 import org.inksnow.cputil.logger.AuroraLoggerFactory;
 import org.inksnow.cputil.logger.impl.parent.AuroraParentLogger;
 
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
 public class AuroraCore implements AuroraApi, Listener {
     public static final Consumer<String> printer = Bukkit.getConsoleSender()::sendMessage;
-    private static @MonotonicNonNull AuroraCore instance;
     /* package-private */ static @MonotonicNonNull JavaPlugin plugin;
+    private static @MonotonicNonNull AuroraCore instance;
     @Getter
     private static boolean serverBootstrap = false;
 
     static {
         AuroraLoggerFactory.instance().provider(new AuroraParentLogger("aurora.core.loader.slf4j"));
+
+        final @Nullable ClassLoader classLoader = AuroraCore.class.getClassLoader();
+        Preconditions.checkState(classLoader != null, "AuroraCore classLoader is bootstrap class loader");
+        Preconditions.checkState(classLoader instanceof URLClassLoader, "AuroraCore classLoader is not URLClassLoader");
+        final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+
+        final AnkhInvoke.Builder builder = AnkhInvoke.builder()
+                .inject()
+                /**/.classLoaderProvider(urlClassLoader)
+                /**/.urlInjector(urlClassLoader)
+                /**/.build()
+                .classPool()
+                /**/.appendLoader(new LoadedClassPoolLoader(classLoader))
+                /**/.appendLoader(new ResourcePoolLoader(classLoader))
+                /**/.appendLoader(new ClassLoaderPoolLoader(classLoader))
+                /**/.build()
+                .reference()
+                /**/.appendPackage("org.inksnow.core.impl.ref")
+                /**/.appendSource(new ResourceReferenceSource(urlClassLoader))
+                /**/.build()
+                .referenceRemap()
+                /**/.append(new NmsVersionRemapper())
+                /**/.appendRegistry()
+                /**/.setApplyMapRegistry("aurora-core")
+                /**/.build();
+        if (PaperEnvironment.hasPaperMapping()) {
+            builder.referenceRemap()
+                    .append(PaperEnvironment.createRemapper());
+        }
+        builder.build();
     }
 
     private final Injector injector;
@@ -44,6 +85,9 @@ public class AuroraCore implements AuroraApi, Listener {
 
     @Getter
     private final AuroraService service;
+
+    @Getter
+    private final DataApi data;
 
     public static AuroraCore instance() {
         @Nullable AuroraCore instance = AuroraCore.instance;
@@ -56,7 +100,7 @@ public class AuroraCore implements AuroraApi, Listener {
                 return instance;
             }
             final Injector bootstrapInjector = Guice.createInjector(
-                new AuroraCoreModule()
+                    new AuroraCoreModule()
             );
             instance = bootstrapInjector.getInstance(AuroraCore.class);
             Aurora.api(instance);
@@ -91,6 +135,8 @@ public class AuroraCore implements AuroraApi, Listener {
         printer.accept("§8|§e [AuroraCore] 正在加载§a AuroraCore " + plugin.getDescription().getVersion());
 
         Bukkit.getPluginManager().registerEvents(instance, plugin);
+        Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraWorldDataService.class), plugin);
+        Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraPlayerDataService.class), plugin);
         Bukkit.getScheduler().runTask(plugin, () -> serverBootstrap = true);
 
         printer.accept("§8+-----------------------------------------------------");
@@ -100,6 +146,15 @@ public class AuroraCore implements AuroraApi, Listener {
     }
 
     public static void onDisable(JavaPlugin plugin) {
+        printer.accept("§8+-----------------------------------------------------");
+        printer.accept("§8|§e [AuroraCore] 正在保存世界数据");
+        instance().injector
+                .getInstance(AuroraWorldDataService.class)
+                .close();
+        instance().injector
+                .getInstance(AuroraPlayerDataService.class)
+                .close();
+        printer.accept("§8+-----------------------------------------------------");
     }
 
     public static boolean onCommand(JavaPlugin plugin, CommandSender sender, Command command, String label, String[] args) {
@@ -124,6 +179,7 @@ public class AuroraCore implements AuroraApi, Listener {
     }
 
     @Override
+    @SuppressWarnings("override.return")
     public <@NonNull T> T getFactory(Class<T> clazz) {
         return injector.getInstance(clazz);
     }

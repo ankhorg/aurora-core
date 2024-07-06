@@ -6,8 +6,8 @@ import org.inksnow.core.data.holder.BlockDataHolder;
 import org.inksnow.core.impl.data.holder.bridge.DataCompoundHolder;
 import org.inksnow.core.impl.data.store.world.AuroraChunkData;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
-import org.inksnow.core.impl.provider.nbt.NBTDataType;
-import org.inksnow.core.impl.provider.nbt.NBTDataTypes;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataType;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataTypes;
 import org.inksnow.core.impl.ref.nbt.RefNbtTagCompound;
 
 import java.lang.ref.WeakReference;

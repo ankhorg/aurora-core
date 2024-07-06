@@ -2,7 +2,9 @@ package org.inksnow.core.impl.data.holder;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.inksnow.ankhinvoke.bukkit.util.CraftBukkitVersion;
 import org.inksnow.core.impl.data.holder.bridge.DataCompoundHolder;
+import org.inksnow.core.impl.ref.nbt.RefNbtAccounter;
 import org.inksnow.core.impl.ref.nbt.RefNbtIo;
 import org.inksnow.core.impl.ref.nbt.RefNbtTagCompound;
 
@@ -25,7 +27,11 @@ public abstract class AuroraNbtFileDataHolder implements DataCompoundHolder, Clo
 
     private RefNbtTagCompound loadImpl() throws IOException {
         if (Files.exists(persistentDataPath)) {
-            return RefNbtIo.readCompressed(persistentDataPath.toFile());
+            if (CraftBukkitVersion.v1_20_R1.isSupport()) {
+                return RefNbtIo.readCompressed1(persistentDataPath, new RefNbtAccounter(104857600L, 512));
+            } else {
+                return RefNbtIo.readCompressed0(persistentDataPath.toFile());
+            }
         } else {
             return new RefNbtTagCompound();
         }
@@ -45,11 +51,16 @@ public abstract class AuroraNbtFileDataHolder implements DataCompoundHolder, Clo
     protected void flush() {
         logger.debug("Flushing nbt file data: {}", persistentDataPath);
         Files.createDirectories(persistentDataPath.getParent());
-        RefNbtIo.writeCompressed(compound, persistentDataPath.toFile());
+
+        if (CraftBukkitVersion.v1_20_R1.isSupport()) {
+            RefNbtIo.writeCompressed1(compound, persistentDataPath);
+        } else {
+            RefNbtIo.writeCompressed0(compound, persistentDataPath.toFile());
+        }
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (!closed) {
             closed = true;
             flush();

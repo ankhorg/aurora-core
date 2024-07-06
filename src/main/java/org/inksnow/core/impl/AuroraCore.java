@@ -3,6 +3,7 @@ package org.inksnow.core.impl;
 import com.google.common.base.Preconditions;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.leangen.geantyref.GenericTypeReflector;
 import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,8 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Damageable;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,14 +33,26 @@ import org.inksnow.ankhinvoke.reference.ResourceReferenceSource;
 import org.inksnow.core.Aurora;
 import org.inksnow.core.AuroraApi;
 import org.inksnow.core.data.DataApi;
+import org.inksnow.core.data.DataHolder;
+import org.inksnow.core.data.DataTransactionResult;
+import org.inksnow.core.data.key.Key;
+import org.inksnow.core.data.provider.DataProvider;
+import org.inksnow.core.data.value.Value;
+import org.inksnow.core.impl.data.AuroraData;
+import org.inksnow.core.impl.data.holder.AuroraEntityDataHolder;
+import org.inksnow.core.impl.data.holder.AuroraPlayerDataHolder;
+import org.inksnow.core.impl.data.provider.DataProviderRegistry;
 import org.inksnow.core.impl.data.store.player.AuroraPlayerDataService;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
+import org.inksnow.core.resource.ResourcePath;
 import org.inksnow.core.util.Builder;
 import org.inksnow.cputil.logger.AuroraLoggerFactory;
 import org.inksnow.cputil.logger.impl.parent.AuroraParentLogger;
 
+import java.lang.reflect.Type;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
@@ -87,7 +104,7 @@ public class AuroraCore implements AuroraApi, Listener {
     private final AuroraService service;
 
     @Getter
-    private final DataApi data;
+    private final AuroraData data;
 
     public static AuroraCore instance() {
         @Nullable AuroraCore instance = AuroraCore.instance;
@@ -139,6 +156,75 @@ public class AuroraCore implements AuroraApi, Listener {
         Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraPlayerDataService.class), plugin);
         Bukkit.getScheduler().runTask(plugin, () -> serverBootstrap = true);
 
+        instance.injector.getInstance(DataProviderRegistry.class)
+                .register(new DataProvider<Value<Double>, Double>() {
+                    @Override
+                    public Key<Value<Double>> key() {
+                        return Keys.HEALTH;
+                    }
+
+                    @Override
+                    public boolean allowsAsynchronousAccess(DataHolder dataHolder) {
+                        return false;
+                    }
+
+                    private Optional<LivingEntity> wrap(DataHolder dataHolder) {
+                        if(!(dataHolder instanceof AuroraEntityDataHolder)) {
+                            return Optional.empty();
+                        }
+                        Entity entity = ((AuroraEntityDataHolder) dataHolder).entity();
+                        if (!(entity instanceof LivingEntity)) {
+                            return Optional.empty();
+                        }
+                        return Optional.of((LivingEntity) entity);
+                    }
+
+                    @Override
+                    public Optional<Double> get(DataHolder dataHolder) {
+                        return wrap(dataHolder).map(Damageable::getHealth);
+                    }
+
+                    @Override
+                    public boolean isSupported(DataHolder dataHolder) {
+                        return wrap(dataHolder).isPresent();
+                    }
+
+                    @Override
+                    public boolean isSupported(Type dataHolder) {
+                        return GenericTypeReflector.erase(dataHolder) == AuroraEntityDataHolder.class;
+                    }
+
+                    @Override
+                    public DataTransactionResult offer(DataHolder.Mutable dataHolder, Double element) {
+                        Optional<LivingEntity> entity = wrap(dataHolder);
+                        if (entity.isPresent()) {
+                            try {
+                                entity.get().setHealth(element);
+                                return DataTransactionResult.successResult(Value.immutableOf(key(), element));
+                            } catch (IllegalArgumentException e) {
+                                return DataTransactionResult.failNoData();
+                            }
+                        } else {
+                            return DataTransactionResult.failNoData();
+                        }
+                    }
+
+                    @Override
+                    public DataTransactionResult remove(DataHolder.Mutable dataHolder) {
+                        return DataTransactionResult.failNoData();
+                    }
+
+                    @Override
+                    public <I extends DataHolder.Immutable<I>> Optional<I> with(I immutable, Double element) {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public <I extends DataHolder.Immutable<I>> Optional<I> without(I immutable) {
+                        return Optional.empty();
+                    }
+                });
+
         printer.accept("§8+-----------------------------------------------------");
         for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {
             instance.onPluginEnabled(new PluginEnableEvent(scanPlugin));
@@ -163,6 +249,13 @@ public class AuroraCore implements AuroraApi, Listener {
 
     public static @Nullable List<String> onTabComplete(JavaPlugin plugin, CommandSender sender, Command command, String alias, String[] args) {
         return null;
+    }
+
+    @EventHandler
+    public void onChat(PlayerChatEvent event) {
+        Aurora.data().of(event.getPlayer())
+                .getDouble(Keys.HEALTH)
+                .ifPresent(it -> event.getPlayer().sendMessage("your health: " + it));
     }
 
     @EventHandler

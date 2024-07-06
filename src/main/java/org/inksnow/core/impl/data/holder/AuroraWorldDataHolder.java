@@ -2,8 +2,8 @@ package org.inksnow.core.impl.data.holder;
 
 import org.bukkit.World;
 import org.inksnow.core.data.holder.WorldDataHolder;
-import org.inksnow.core.impl.provider.nbt.NBTDataType;
-import org.inksnow.core.impl.provider.nbt.NBTDataTypes;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataType;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataTypes;
 
 import java.lang.ref.WeakReference;
 

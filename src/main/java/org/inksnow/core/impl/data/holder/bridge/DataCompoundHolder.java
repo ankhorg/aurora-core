@@ -1,6 +1,6 @@
 package org.inksnow.core.impl.data.holder.bridge;
 
-import org.inksnow.core.impl.provider.nbt.NBTDataType;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataType;
 import org.inksnow.core.impl.ref.nbt.RefNbtTagCompound;
 
 public interface DataCompoundHolder {

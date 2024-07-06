@@ -1,11 +1,15 @@
 package org.inksnow.core.impl.data.holder;
 
+import com.google.common.collect.ImmutableList;
 import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.holder.EntityDataHolder;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class AuroraPlayerDataHolder extends AuroraUserDataHolder implements EntityDataHolder {
@@ -17,6 +21,11 @@ public class AuroraPlayerDataHolder extends AuroraUserDataHolder implements Enti
         super(player.getUniqueId());
         this.playerReference = new WeakReference<>(player);
         this.entityDataHolder = new AuroraEntityDataHolder(player);
+    }
+
+    @Override
+    public List<DataHolder> impl$delegateDataHolder() {
+        return ImmutableList.of(this, entityDataHolder);
     }
 
     @Override

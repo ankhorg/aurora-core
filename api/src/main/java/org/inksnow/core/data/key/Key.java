@@ -2,6 +2,7 @@ package org.inksnow.core.data.key;
 
 import io.leangen.geantyref.TypeToken;
 import org.checkerframework.common.returnsreceiver.qual.This;
+import org.inksnow.core.Aurora;
 import org.inksnow.core.data.value.ListValue;
 import org.inksnow.core.data.value.MapValue;
 import org.inksnow.core.data.value.SetValue;
@@ -36,6 +37,10 @@ import java.util.Set;
  * @param <V> The type of {@link Value}
  */
 public interface Key<V extends Value<?>> extends WithResourcePath {
+    static <E, V extends Value<E>> Builder<E, V> builder() {
+        return Aurora.createBuilder(Builder.class);
+    }
+
     /**
      * Gets the type of the {@link Value} this {@link Key} is representing.
      *

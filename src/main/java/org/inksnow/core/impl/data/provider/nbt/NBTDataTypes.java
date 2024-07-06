@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inksnow.core.impl.provider.nbt;
+package org.inksnow.core.impl.data.provider.nbt;
 
 public final class NBTDataTypes {
 

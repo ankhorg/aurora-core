@@ -3,6 +3,7 @@ package org.inksnow.core.impl.data;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -21,6 +22,7 @@ import org.inksnow.core.impl.data.holder.AuroraItemDataHolder;
 import org.inksnow.core.impl.data.holder.AuroraPlayerDataHolder;
 import org.inksnow.core.impl.data.holder.AuroraUserDataHolder;
 import org.inksnow.core.impl.data.holder.AuroraWorldDataHolder;
+import org.inksnow.core.impl.data.provider.DataProviderRegistry;
 import org.inksnow.core.impl.data.store.player.AuroraPlayerDataService;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
 import org.inksnow.core.impl.util.PosUtil;
@@ -30,6 +32,8 @@ import java.util.UUID;
 @Singleton
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
 public class AuroraData implements DataApi {
+    @Getter
+    private final DataProviderRegistry providerRegistry;
     private final AuroraWorldDataService worldDataService;
     private final AuroraPlayerDataService playerDataService;
 

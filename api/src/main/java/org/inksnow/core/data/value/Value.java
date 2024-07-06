@@ -6,6 +6,7 @@ import org.inksnow.core.data.key.Key;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -32,6 +33,7 @@ import java.util.function.Supplier;
  *
  * @param <E> The type of element wrapped by this value
  */
+@SuppressWarnings("type.arguments.not.inferred")
 public interface Value<E> {
     static Value.Factory factory() {
         return Aurora.getFactory(Value.Factory.class);
@@ -339,6 +341,45 @@ public interface Value<E> {
          * @return The owning {@link ValueContainer}
          */
         Mutable<E> set(E value);
+
+        /**
+         * Attempts to transform the underlying value based on the provided
+         * {@link Function} such that the result of {@link Function#apply(Object)}
+         * will replace the underlying value.
+         *
+         * @param function The function to apply on the existing value
+         * @return The owning {@link ValueContainer}
+         */
+        Mutable<E> transform(Function<E, E> function);
+
+        /**
+         * Gets the {@link Immutable} version of this {@link Mutable} such that
+         * all data is duplicated across to the new {@link Immutable}. Note
+         * that once created, the {@link Immutable} is not going to change.
+         *
+         * @return A new {@link Immutable} instance
+         */
+        @Override
+        Immutable<E> asImmutable();
+
+        @Override
+        default Mutable<E> asMutable() {
+            return this;
+        }
+
+        @Override
+        default Mutable<E> asMutableCopy() {
+            return this.copy();
+        }
+
+        /**
+         * Makes an independent copy of this {@link Mutable} with the same initial
+         * data. Both this value and the new value will refer to the same object
+         * initially.
+         *
+         * @return A new copy of this {@link Mutable}
+         */
+        Mutable<E> copy();
     }
 
     /**
@@ -359,7 +400,51 @@ public interface Value<E> {
      * @param <E> The type of value
      */
     interface Immutable<E> extends Value<E> {
+        /**
+         * Creates a new {@link Immutable} with the given <code>E</code> typed
+         * value, such that if the owning {@link ValueContainer} is immutable, the
+         * {@link ValueContainer} too is recreated as a new instance with the new
+         * {@link Immutable}.
+         *
+         * @param value The value to replace
+         * @return The owning {@link ValueContainer}, a new instance if it too is
+         *     immutable
+         */
         Immutable<E> with(E value);
+
+        /**
+         * Retrieves the underlying value for this {@link Immutable} and
+         * applies the given {@link Function} onto that value, after which, the
+         * product is sent to a new {@link Immutable} replacing this one.
+         *
+         * <p>If the {@link ValueContainer} too is immutable, a new instance of
+         * the {@link ValueContainer} may be created. If the {@link ValueContainer}
+         * is mutable, the same instance of the {@link ValueContainer} is retained.
+         * </p>
+         *
+         * @param function The function to apply onto the existing value
+         * @return The owning {@link ValueContainer}, a new instance if it too is
+         *     immutable
+         */
+        Immutable<E> transform(Function<E, E> function);
+
+        /**
+         * Creates a mutable {@link Mutable} for this {@link Immutable}.
+         *
+         * @return A mutable value
+         */
+        @Override
+        Mutable<E> asMutable();
+
+        @Override
+        default Mutable<E> asMutableCopy() {
+            return this.asMutable();
+        }
+
+        @Override
+        default Immutable<E> asImmutable() {
+            return this;
+        }
     }
 
     /**

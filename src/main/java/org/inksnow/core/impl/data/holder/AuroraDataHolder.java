@@ -3,10 +3,12 @@ package org.inksnow.core.impl.data.holder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.inksnow.core.Aurora;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.provider.DataProvider;
 import org.inksnow.core.data.value.Value;
+import org.inksnow.core.impl.AuroraCore;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -22,8 +24,9 @@ import java.util.function.Supplier;
 public interface AuroraDataHolder extends DataHolder {
     default <V extends Value<E>, E> DataProvider<V, E> impl$getProviderFor(Key<V> key, DataHolder dataHolder) {
         Preconditions.checkArgument(key != null, "key");
-        throw new UnsupportedOperationException();
-        // return SpongeDataManager.getProviderRegistry().getProvider(key, dataHolder.getClass());
+        return AuroraCore.instance().data()
+                .providerRegistry()
+                .getProvider(key, dataHolder.getClass());
     }
 
     default List<DataHolder> impl$delegateDataHolder() {
@@ -31,8 +34,9 @@ public interface AuroraDataHolder extends DataHolder {
     }
 
     default Collection<DataProvider<?, ?>> impl$getAllProviders(final DataHolder dataHolder) {
-        throw new UnsupportedOperationException();
-        // return SpongeDataManager.getProviderRegistry().getAllProviders(dataHolder.getClass());
+        return AuroraCore.instance().data()
+                .providerRegistry()
+                .getAllProviders(dataHolder.getClass());
     }
 
     default <T, E, V extends Value<E>> T impl$apply(final Key<V> key, final BiFunction<DataProvider, DataHolder, T> function, final Supplier<T> defaultResult) {

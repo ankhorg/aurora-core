@@ -3,8 +3,8 @@ package org.inksnow.core.impl.data.holder;
 import org.bukkit.inventory.ItemStack;
 import org.inksnow.core.data.holder.ItemDataHolder;
 import org.inksnow.core.impl.data.holder.bridge.DataCompoundHolder;
-import org.inksnow.core.impl.provider.nbt.NBTDataType;
-import org.inksnow.core.impl.provider.nbt.NBTDataTypes;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataType;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataTypes;
 import org.inksnow.core.impl.ref.nbt.RefCraftItemStack;
 import org.inksnow.core.impl.ref.nbt.RefNbtTagCompound;
 

@@ -1,4 +1,4 @@
-package org.inksnow.core.impl.provider.nbt;
+package org.inksnow.core.impl.data.provider.nbt;
 
 import java.util.Objects;
 import java.util.StringJoiner;

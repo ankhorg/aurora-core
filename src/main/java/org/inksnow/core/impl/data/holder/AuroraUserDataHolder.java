@@ -4,8 +4,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
 import org.inksnow.core.data.holder.UserDataHolder;
-import org.inksnow.core.impl.provider.nbt.NBTDataType;
-import org.inksnow.core.impl.provider.nbt.NBTDataTypes;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataType;
+import org.inksnow.core.impl.data.provider.nbt.NBTDataTypes;
 
 import java.nio.file.Paths;
 import java.util.Optional;

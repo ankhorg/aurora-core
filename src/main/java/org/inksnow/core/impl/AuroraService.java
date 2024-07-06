@@ -34,7 +34,7 @@ public class AuroraService implements ServiceApi {
         this.worldTag = worldTag;
         this.pluginScanned = new WeakHashMap<>();
         this.registries = new AbstractSpiRegistry<?>[]{
-                item, worldTag
+            item, worldTag
         };
     }
 

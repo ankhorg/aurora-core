@@ -63,16 +63,15 @@ public interface AuroraMutableDataHolder extends AuroraDataHolder, DataHolder.Mu
         final AuroraKey<? extends CollectionValue<E, Collection<E>>, Collection<E>> key0 =
                 (AuroraKey<? extends CollectionValue<E, Collection<E>>, Collection<E>>) key;
         return this.impl$applyTransaction(key0, (p, m) -> {
-                    final @Nullable Collection<E> collection = p.get(m)
-                            .map(DataUtil::ensureMutable)
-                            .orElseGet(key0.defaultValueSupplier());
-                    Preconditions.checkState(collection != null, "Collection is null, it should never happened");
-                    if (!collection.add(element)) {
-                        return DataTransactionResult.failNoData();
-                    }
-                    return p.offer(m, collection);
-                },
-                DataTransactionResult::failNoData);
+            final @Nullable Collection<E> collection = p.get(m)
+                    .map(DataUtil::ensureMutable)
+                    .orElseGet(key0.defaultValueSupplier());
+            Preconditions.checkState(collection != null, "Collection is null, it should never happened");
+            if (!collection.add(element)) {
+                return DataTransactionResult.failNoData();
+            }
+            return p.offer(m, collection);
+        }, DataTransactionResult::failNoData);
     }
 
     @Override
@@ -80,26 +79,25 @@ public interface AuroraMutableDataHolder extends AuroraDataHolder, DataHolder.Mu
         final AuroraKey<? extends CollectionValue<E, Collection<E>>, Collection<E>> key0 =
                 (AuroraKey<? extends CollectionValue<E, Collection<E>>, Collection<E>>) key;
         return this.impl$applyTransaction(key0, (p, m) -> {
-                    final @Nullable Collection<E> collection = p.get(m)
-                            .map(DataUtil::ensureMutable)
-                            .orElseGet(key0.defaultValueSupplier());
-                    Preconditions.checkState(collection != null, "Collection is null, it should never happened");
-                    if (!collection.addAll(elements)) {
-                        return DataTransactionResult.failNoData();
-                    }
-                    return p.offer(m, collection);
-                },
-                DataTransactionResult::failNoData);
+            final @Nullable Collection<E> collection = p.get(m)
+                    .map(DataUtil::ensureMutable)
+                    .orElseGet(key0.defaultValueSupplier());
+            Preconditions.checkState(collection != null, "Collection is null, it should never happened");
+            if (!collection.addAll(elements)) {
+                return DataTransactionResult.failNoData();
+            }
+            return p.offer(m, collection);
+        }, DataTransactionResult::failNoData);
     }
 
     @Override
     default <K, V> DataTransactionResult offerSingle(Key<? extends MapValue<K, V>> key, K valueKey, V value) {
         return this.impl$applyTransaction(key, (p, m) -> {
-                    final Map<K, V> kvMap = p.get(m).map(DataUtil::ensureMutable).orElseGet(((AuroraKey) key).defaultValueSupplier());
-                    kvMap.put(valueKey, value);
-                    return p.offer(m, kvMap);
-                },
-                DataTransactionResult::failNoData);
+            final Map<K, V> kvMap = p.get(m).map(DataUtil::ensureMutable).orElseGet(((AuroraKey) key).defaultValueSupplier());
+            kvMap.put(valueKey, value);
+            return p.offer(m, kvMap);
+        },
+        DataTransactionResult::failNoData);
     }
 
     @Override
@@ -108,11 +106,11 @@ public interface AuroraMutableDataHolder extends AuroraDataHolder, DataHolder.Mu
             return DataTransactionResult.failNoData();
         }
         return this.impl$applyTransaction(key, (p, m) -> {
-                    final Map<K, V> kvMap = p.get(m).map(DataUtil::ensureMutable).orElseGet(((AuroraKey) key).defaultValueSupplier());
-                    kvMap.putAll(values);
-                    return p.offer(m, kvMap);
-                },
-                DataTransactionResult::failNoData);
+            final Map<K, V> kvMap = p.get(m).map(DataUtil::ensureMutable).orElseGet(((AuroraKey) key).defaultValueSupplier());
+            kvMap.putAll(values);
+            return p.offer(m, kvMap);
+        },
+        DataTransactionResult::failNoData);
     }
 
     @Override

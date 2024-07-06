@@ -29,18 +29,18 @@ public class AuroraChunkData {
     }
 
     private void loadBlockData() {
-        RefNbtTagList blockDataList = nbt.getList("block-data", NbtTypes.TAG_COMPOUND);
+        final RefNbtTagList blockDataList = nbt.getList("block-data", NbtTypes.TAG_COMPOUND);
         for (int i = 0; i < blockDataList.size(); i++) {
-            RefNbtTagCompound blockData = (RefNbtTagCompound) blockDataList.get(i);
-            int blockId = blockData.getInt("block-id");
+            final RefNbtTagCompound blockData = (RefNbtTagCompound) blockDataList.get(i);
+            final int blockId = blockData.getInt("block-id");
             this.blockData.put(blockId, blockData);
         }
     }
 
     private void saveBlockData() {
-        RefNbtTagList blockDataList = nbt.getList("block-data", NbtTypes.TAG_COMPOUND);
+        final RefNbtTagList blockDataList = nbt.getList("block-data", NbtTypes.TAG_COMPOUND);
         for (Map.Entry<Integer, RefNbtTagCompound> entry : blockData.entrySet()) {
-            RefNbtTagCompound blockData = entry.getValue();
+            final RefNbtTagCompound blockData = entry.getValue();
             blockData.setInt("block-id", entry.getKey());
 
             if (CraftBukkitVersion.v1_14_R1.isSupport()) {

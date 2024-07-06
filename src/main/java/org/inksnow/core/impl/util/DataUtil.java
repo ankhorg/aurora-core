@@ -33,11 +33,11 @@ public class DataUtil {
 
     public static <E> List<E> ensureMutable(List<E> list) {
         final Class<?> type = list.getClass();
-        if (type == ArrayList.class ||
-                type == LinkedList.class ||
-                type == CopyOnWriteArrayList.class ||
-                type == Stack.class ||
-                type == Vector.class) {
+        if (type == ArrayList.class
+                || type == LinkedList.class
+                || type == CopyOnWriteArrayList.class
+                || type == Stack.class
+                || type == Vector.class) {
             return list;
         }
         return new ArrayList<>(list);
@@ -45,9 +45,9 @@ public class DataUtil {
 
     public static <E> Set<E> ensureMutable(Set<E> set) {
         final Class<?> type = set.getClass();
-        if (type == HashSet.class ||
-                type == LinkedHashSet.class ||
-                type == ConcurrentSkipListSet.class) {
+        if (type == HashSet.class
+                || type == LinkedHashSet.class
+                || type == ConcurrentSkipListSet.class) {
             return set;
         }
         return new LinkedHashSet<>(set);
@@ -55,10 +55,10 @@ public class DataUtil {
 
     public static <K, V> Map<K, V> ensureMutable(Map<K, V> map) {
         final Class<?> type = map.getClass();
-        if (type == HashMap.class ||
-                type == LinkedHashMap.class ||
-                type == TreeMap.class ||
-                type == ConcurrentHashMap.class) {
+        if (type == HashMap.class
+                || type == LinkedHashMap.class
+                || type == TreeMap.class
+                || type == ConcurrentHashMap.class) {
             return map;
         }
         return new LinkedHashMap<>(map);

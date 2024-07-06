@@ -18,11 +18,11 @@ import java.util.stream.Stream;
 
 @Singleton
 public class DataProviderRegistry {
-    private final Multimap<Key<?>, DataProvider<?,?>> dataProviders = HashMultimap.create();
-    private final Map<LookupKey, DataProvider<?,?>> dataProviderCache = new ConcurrentHashMap<>();
+    private final Multimap<Key<?>, DataProvider<?, ?>> dataProviders = HashMultimap.create();
+    private final Map<LookupKey, DataProvider<?, ?>> dataProviderCache = new ConcurrentHashMap<>();
     private final Map<Class<?>, DataProviderLookup> dataProviderLookupCache = new ConcurrentHashMap<>();
 
-    private static boolean filterHolderType(final DataProvider<?,?> provider, final Class<?> holderType) {
+    private static boolean filterHolderType(final DataProvider<?, ?> provider, final Class<?> holderType) {
         // Filter out data providers of which we know that they will never be relevant.
         if (provider instanceof AbstractDataProvider.KnownHolderType) {
             final Class<?> foundHolderType = ((AbstractDataProvider.KnownHolderType) provider).getHolderType();
@@ -32,7 +32,7 @@ public class DataProviderRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    private DataProvider<?,?> loadProvider(final LookupKey key) {
+    private DataProvider<?, ?> loadProvider(final LookupKey key) {
         return this.buildDelegate((Key<Value<Object>>) key.key, provider -> DataProviderRegistry.filterHolderType(provider, key.holderType));
     }
 
@@ -82,7 +82,7 @@ public class DataProviderRegistry {
      * @return The built lookup
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public DataProviderLookup buildLookup(final Predicate<DataProvider<?,?>> predicate) {
+    public DataProviderLookup buildLookup(final Predicate<DataProvider<?, ?>> predicate) {
         final Stream<DataProvider> stream = this.dataProviders.keySet().stream()
                 .map(key -> DataProviderRegistry.buildDelegateProvider((Key) key, (List) this.dataProviders.get(key).stream().filter(predicate)));
         final Map<Key<?>, DataProvider<?, ?>> map = stream.collect(Collectors.toMap(p -> (Key<?>) p.key(), p -> (DataProvider<?, ?>) p));
@@ -113,7 +113,7 @@ public class DataProviderRegistry {
      *
      * @return The delegate data provider
      */
-    public Collection<DataProvider<?,?>> getAllProviders(final Class<?> dataHolderType) {
+    public Collection<DataProvider<?, ?>> getAllProviders(final Class<?> dataHolderType) {
         return this.getProviderLookup(dataHolderType).getAllProviders();
     }
 
@@ -136,7 +136,7 @@ public class DataProviderRegistry {
      *
      * @param provider The data provider
      */
-    public void register(final DataProvider<?,?> provider) {
+    public void register(final DataProvider<?, ?> provider) {
         this.dataProviders.put(provider.key(), provider);
         this.dataProviderCache.clear();
         this.dataProviderLookupCache.clear();

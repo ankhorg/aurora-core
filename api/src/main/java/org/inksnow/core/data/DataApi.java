@@ -15,10 +15,16 @@ import org.inksnow.core.data.holder.UserDataHolder;
 import org.inksnow.core.data.holder.WorldDataHolder;
 
 public interface DataApi {
+
     BlockDataHolder of(Block block);
+
     ChunkDataHolder of(Chunk chunk);
+
     EntityDataHolder of(Entity entity);
+
     ItemDataHolder of(ItemStack itemStack);
+
     UserDataHolder of(Player player);
+
     WorldDataHolder of(World world);
 }

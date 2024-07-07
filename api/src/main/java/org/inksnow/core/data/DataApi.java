@@ -27,4 +27,6 @@ public interface DataApi {
     UserDataHolder of(Player player);
 
     WorldDataHolder of(World world);
+
+    DataManager dataManager();
 }

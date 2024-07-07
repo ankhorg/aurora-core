@@ -2,6 +2,7 @@ package org.inksnow.core.impl.ref.nbt;
 
 import org.inksnow.ankhinvoke.comments.HandleBy;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 @HandleBy(reference = "net/minecraft/nbt/ByteArrayTag", predicates = "craftbukkit_version:[v1_17_R1,)")
@@ -18,6 +19,10 @@ public final class RefNbtTagByteArray extends RefNbtBase {
     public RefNbtTagByteArray(List<Byte> value) {
         throw new UnsupportedOperationException();
     }
+
+    @HandleBy(reference = "Lnet/minecraft/nbt/ByteArrayTag;data:[B", useAccessor = true, predicates = "craftbukkit_version:[v1_17_R1,)")
+    @HandleBy(reference = "Lnet/minecraft/server/v1_12_R1/NBTTagByteArray;data:[B", useAccessor = true, predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")
+    public byte[] data;
 
     @HandleBy(reference = "Lnet/minecraft/nbt/ByteArrayTag;getAsByteArray()[B", predicates = "craftbukkit_version:[v1_17_R1,)")
     @HandleBy(reference = "Lnet/minecraft/server/v1_14_R1/NBTTagByteArray;getBytes()[B", predicates = "craftbukkit_version:[v1_14_R1,v1_17_R1)")

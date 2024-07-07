@@ -26,4 +26,11 @@ public final class RefNbtTagLongArray extends RefNbtBase {
     @HandleBy(reference = "Lnet/minecraft/server/v1_14_R1/NBTTagLongArray;getLongs()[J", predicates = "craftbukkit_version:[v1_14_R1,v1_17_R1)")
     @HandleBy(reference = "Lnet/minecraft/server/v1_13_R1/NBTTagLongArray;d()[J", predicates = "craftbukkit_version:[v1_13_R1,v1_14_R1)")
     public native long[] getLongs();
+
+
+    @HandleBy(reference = "Lnet/minecraft/nbt/LongArrayTag;data:[J", useAccessor = true, predicates = "craftbukkit_version:[v1_17_R1,)")
+    @HandleBy(reference = "Lnet/minecraft/server/v1_16_R3/NBTTagLongArray;b:[J", useAccessor = true, predicates = "craftbukkit_version:[v1_15_R1,v1_17_R1)")
+    @HandleBy(reference = "Lnet/minecraft/server/v1_13_R1/NBTTagLongArray;f:[J", useAccessor = true, predicates = "craftbukkit_version:[v1_13_R1,v1_15_R1)")
+    @HandleBy(reference = "Lnet/minecraft/server/v1_12_R1/NBTTagLongArray;b:[J", useAccessor = true, predicates = "craftbukkit_version:[v1_12_R1,v1_13_R1)")
+    public long[] data;
 }

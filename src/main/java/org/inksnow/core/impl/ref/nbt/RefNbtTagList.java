@@ -2,6 +2,8 @@ package org.inksnow.core.impl.ref.nbt;
 
 import org.inksnow.ankhinvoke.comments.HandleBy;
 
+import java.util.List;
+
 @HandleBy(reference = "net/minecraft/nbt/ListTag", predicates = "craftbukkit_version:[v1_17_R1,)")
 @HandleBy(reference = "net/minecraft/server/v1_12_R1/NBTTagList", predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")
 public final class RefNbtTagList extends RefNbtBase {
@@ -10,6 +12,10 @@ public final class RefNbtTagList extends RefNbtBase {
     public RefNbtTagList() {
         throw new UnsupportedOperationException();
     }
+
+    @HandleBy(reference = "Lnet/minecraft/nbt/ListTag;list:Ljava/util/List;", predicates = "craftbukkit_version:[v1_17_R1,)")
+    @HandleBy(reference = "Lnet/minecraft/server/v1_12_R1/NBTTagList;list:Ljava/util/List;", predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")
+    public List<RefNbtBase> list;
 
     @HandleBy(reference = "Ljava/util/List;get(I)Ljava/lang/Object;", isInterface = true, predicates = "craftbukkit_version:[v1_17_R1,)")
     @HandleBy(reference = "Lnet/minecraft/server/v1_14_R1/NBTTagList;get(I)Lnet/minecraft/server/v1_14_R1/NBTBase;", predicates = "craftbukkit_version:[v1_14_R1,v1_17_R1)")
@@ -40,6 +46,10 @@ public final class RefNbtTagList extends RefNbtBase {
     @HandleBy(reference = "Ljava/util/List;add(ILjava/lang/Object;)V", isInterface = true, predicates = "craftbukkit_version:[v1_17_R1,)")
     @HandleBy(reference = "Lnet/minecraft/server/v1_14_R1/NBTTagList;add(ILnet/minecraft/server/v1_14_R1/NBTBase;)V", predicates = "craftbukkit_version:[v1_14_R1,v1_17_R1)")
     public native void add2(int index, RefNbtBase element);
+
+    @HandleBy(reference = "Lnet/minecraft/nbt/ListTag;addTag(ILnet/minecraft/nbt/Tag;)Z", predicates = "craftbukkit_version:[v1_17_R1,)")
+    @HandleBy(reference = "Lnet/minecraft/server/v1_14_R1/NBTTagList;b(ILnet/minecraft/server/v1_14_R1/NBTBase;)Z", predicates = "craftbukkit_version:[v1_14_R1,v1_17_R1)")
+    public native boolean add3(int index, RefNbtBase element);
 
     @HandleBy(reference = "Ljava/util/List;remove(I)Ljava/lang/Object;", isInterface = true, predicates = "craftbukkit_version:[v1_17_R1,)")
     @HandleBy(reference = "Lnet/minecraft/server/v1_12_R1/NBTTagList;remove(I)Lnet/minecraft/server/v1_12_R1/NBTBase;", predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")

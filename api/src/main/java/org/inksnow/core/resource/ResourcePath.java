@@ -5,6 +5,7 @@ import org.checkerframework.common.returnsreceiver.qual.This;
 import org.checkerframework.common.value.qual.MatchesRegex;
 import org.checkerframework.common.value.qual.MinLen;
 import org.inksnow.core.Aurora;
+import org.inksnow.core.data.persistence.DataQuery;
 import org.inksnow.core.util.CopyableBuilder;
 
 import java.util.ArrayList;
@@ -117,6 +118,15 @@ public interface ResourcePath extends Comparable<ResourcePath> {
      * @return the elements of the ResourcePath
      */
     List<@NonEmpty @MatchesRegex("[^:]+") String> elements();
+
+    /**
+     * Cast this ResourcePath to a DataQuery.
+     *
+     * @return a DataQuery with the same elements as this ResourcePath
+     */
+    default DataQuery asDataQuery() {
+        return DataQuery.of(elements());
+    }
 
     /**
      * Returns the parent of the ResourcePath, include itself.

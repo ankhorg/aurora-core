@@ -23,4 +23,8 @@ public final class RefNbtTagIntArray extends RefNbtBase {
     @HandleBy(reference = "Lnet/minecraft/server/v1_14_R1/NBTTagIntArray;getInts()[I", predicates = "craftbukkit_version:[v1_14_R1,v1_17_R1)")
     @HandleBy(reference = "Lnet/minecraft/server/v1_12_R1/NBTTagIntArray;d()[I", predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")
     public native int[] getInts();
+
+    @HandleBy(reference = "Lnet/minecraft/nbt/IntArrayTag;data:[I", useAccessor = true, predicates = "craftbukkit_version:[v1_17_R1,)")
+    @HandleBy(reference = "Lnet/minecraft/server/v1_12_R1/NBTTagIntArray;data:[I", useAccessor = true, predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")
+    public int[] data;
 }

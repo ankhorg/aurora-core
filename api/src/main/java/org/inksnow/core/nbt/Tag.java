@@ -1,10 +1,9 @@
 package org.inksnow.core.nbt;
 
+/**
+ * The base interface of all tags
+ */
 public interface Tag {
-    int OBJECT_HEADER = 8;
-    int ARRAY_HEADER = 12;
-    int OBJECT_REFERENCE = 4;
-    int STRING_SIZE = 28;
     byte TAG_END = 0;
     byte TAG_BYTE = 1;
     byte TAG_SHORT = 2;
@@ -19,14 +18,33 @@ public interface Tag {
     byte TAG_INT_ARRAY = 11;
     byte TAG_LONG_ARRAY = 12;
     byte TAG_ANY_NUMERIC = 99;
-    int MAX_DEPTH = 512;
 
+    /**
+     * Get the type id of the tag
+     *
+     * @return the type id
+     */
     byte getId();
 
+    /**
+     * Get the tag content as a string
+     *
+     * @return the string representation of the tag
+     */
     String getAsString();
 
+    /**
+     * Copy the tag
+     *
+     * @return the copied tag
+     */
     Tag copy();
 
+    /**
+     * Get the tag factory, same as {@link TagFactory#instance()}
+     *
+     * @return the tag factory
+     */
     static TagFactory factory() {
         return TagFactory.instance();
     }

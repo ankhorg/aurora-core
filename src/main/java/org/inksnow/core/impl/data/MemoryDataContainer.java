@@ -27,10 +27,6 @@ package org.inksnow.core.impl.data;
 import org.inksnow.core.data.persistence.DataContainer;
 import org.inksnow.core.data.persistence.DataQuery;
 import org.inksnow.core.data.persistence.DataView;
-import DataContainer;
-import DataQuery;
-import DataView;
-
 import java.util.Optional;
 
 /**

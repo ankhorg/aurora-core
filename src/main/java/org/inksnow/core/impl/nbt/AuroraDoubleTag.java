@@ -62,7 +62,7 @@ public final class AuroraDoubleTag extends AuroraNumericTag<AuroraDoubleTag, Ref
         }
     }
 
-    public static AuroraDoubleTag of(float value) {
+    public static AuroraDoubleTag of(double value) {
         return new AuroraDoubleTag(value);
     }
 }

@@ -2,7 +2,10 @@ package org.inksnow.core.impl.data.provider;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.provider.DataProvider;
 import org.inksnow.core.data.value.Value;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Singleton
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
 public class DataProviderRegistry {
     private final Multimap<Key<?>, DataProvider<?, ?>> dataProviders = HashMultimap.create();
     private final Map<LookupKey, DataProvider<?, ?>> dataProviderCache = new ConcurrentHashMap<>();

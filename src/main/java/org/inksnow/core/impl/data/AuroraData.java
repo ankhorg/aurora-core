@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataApi;
+import org.inksnow.core.data.DataManager;
 import org.inksnow.core.data.holder.EntityDataHolder;
 import org.inksnow.core.impl.data.holder.AuroraBlockDataHolder;
 import org.inksnow.core.impl.data.holder.AuroraChunkDataHolder;
@@ -32,6 +33,7 @@ import java.util.UUID;
 @Singleton
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
 public class AuroraData implements DataApi {
+    private final DataManager dataManager;
     @Getter
     private final DataProviderRegistry providerRegistry;
     private final AuroraWorldDataService worldDataService;
@@ -40,6 +42,11 @@ public class AuroraData implements DataApi {
     @Override
     public AuroraWorldDataHolder of(World world) {
         return worldDataService.get(world).dataHolder();
+    }
+
+    @Override
+    public DataManager dataManager() {
+        return dataManager;
     }
 
     @Override

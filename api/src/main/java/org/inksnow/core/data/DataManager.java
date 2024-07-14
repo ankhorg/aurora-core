@@ -8,13 +8,6 @@ import org.inksnow.core.data.persistence.DataStore;
 import org.inksnow.core.data.persistence.DataTranslator;
 import org.inksnow.core.data.persistence.DataView;
 import org.inksnow.core.resource.ResourcePath;
-import org.spongepowered.api.ResourceKey;
-import persistence.DataBuilder;
-import persistence.DataContainer;
-import persistence.DataContentUpdater;
-import persistence.DataSerializable;
-import persistence.DataTranslator;
-import persistence.DataView;
 
 import java.util.Optional;
 

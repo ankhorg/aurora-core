@@ -34,13 +34,19 @@ import org.inksnow.core.Aurora;
 import org.inksnow.core.AuroraApi;
 import org.inksnow.core.data.DataApi;
 import org.inksnow.core.data.DataHolder;
+import org.inksnow.core.data.DataRegistration;
 import org.inksnow.core.data.DataTransactionResult;
+import org.inksnow.core.data.holder.EntityDataHolder;
+import org.inksnow.core.data.holder.UserDataHolder;
 import org.inksnow.core.data.key.Key;
+import org.inksnow.core.data.persistence.DataQuery;
 import org.inksnow.core.data.provider.DataProvider;
 import org.inksnow.core.data.value.Value;
 import org.inksnow.core.impl.data.AuroraData;
+import org.inksnow.core.impl.data.AuroraDataRegistrationBuilder;
 import org.inksnow.core.impl.data.holder.AuroraEntityDataHolder;
 import org.inksnow.core.impl.data.holder.AuroraPlayerDataHolder;
+import org.inksnow.core.impl.data.provider.DataProviderRegistrator;
 import org.inksnow.core.impl.data.provider.DataProviderRegistry;
 import org.inksnow.core.impl.data.store.player.AuroraPlayerDataService;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
@@ -126,12 +132,14 @@ public class AuroraCore implements AuroraApi, Listener {
         return instance;
     }
 
+    @SuppressWarnings("unused") // used by reflect in module plugin
     public static void onInit(JavaPlugin plugin) {
         Preconditions.checkState(instance == null, "AuroraCore already initialized");
         AuroraCore.plugin = plugin;
         instance();
     }
 
+    @SuppressWarnings("unused") // used by reflect in module plugin
     public static void onLoad(JavaPlugin plugin) {
         Preconditions.checkState(instance != null, "AuroraCore not initialized");
 
@@ -145,6 +153,7 @@ public class AuroraCore implements AuroraApi, Listener {
         }
     }
 
+    @SuppressWarnings("unused") // used by reflect in module plugin
     public static void onEnable(JavaPlugin plugin) {
         Preconditions.checkState(instance != null, "AuroraCore not initialized");
 
@@ -156,74 +165,23 @@ public class AuroraCore implements AuroraApi, Listener {
         Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraPlayerDataService.class), plugin);
         Bukkit.getScheduler().runTask(plugin, () -> serverBootstrap = true);
 
-        instance.injector.getInstance(DataProviderRegistry.class)
-                .register(new DataProvider<Value<Double>, Double>() {
-                    @Override
-                    public Key<Value<Double>> key() {
-                        return Keys.HEALTH;
-                    }
+        DataProviderRegistrator registrator = new DataProviderRegistrator();
 
-                    @Override
-                    public boolean allowsAsynchronousAccess(DataHolder dataHolder) {
-                        return false;
-                    }
-
-                    private Optional<LivingEntity> wrap(DataHolder dataHolder) {
-                        if(!(dataHolder instanceof AuroraEntityDataHolder)) {
-                            return Optional.empty();
-                        }
-                        Entity entity = ((AuroraEntityDataHolder) dataHolder).entity();
-                        if (!(entity instanceof LivingEntity)) {
-                            return Optional.empty();
-                        }
-                        return Optional.of((LivingEntity) entity);
-                    }
-
-                    @Override
-                    public Optional<Double> get(DataHolder dataHolder) {
-                        return wrap(dataHolder).map(Damageable::getHealth);
-                    }
-
-                    @Override
-                    public boolean isSupported(DataHolder dataHolder) {
-                        return wrap(dataHolder).isPresent();
-                    }
-
-                    @Override
-                    public boolean isSupported(Type dataHolder) {
-                        return GenericTypeReflector.erase(dataHolder) == AuroraEntityDataHolder.class;
-                    }
-
-                    @Override
-                    public DataTransactionResult offer(DataHolder.Mutable dataHolder, Double element) {
-                        Optional<LivingEntity> entity = wrap(dataHolder);
-                        if (entity.isPresent()) {
-                            try {
-                                entity.get().setHealth(element);
-                                return DataTransactionResult.successResult(Value.immutableOf(key(), element));
-                            } catch (IllegalArgumentException e) {
-                                return DataTransactionResult.failNoData();
-                            }
-                        } else {
-                            return DataTransactionResult.failNoData();
-                        }
-                    }
-
-                    @Override
-                    public DataTransactionResult remove(DataHolder.Mutable dataHolder) {
-                        return DataTransactionResult.failNoData();
-                    }
-
-                    @Override
-                    public <I extends DataHolder.Immutable<I>> Optional<I> with(I immutable, Double element) {
-                        return Optional.empty();
-                    }
-
-                    @Override
-                    public <I extends DataHolder.Immutable<I>> Optional<I> without(I immutable) {
-                        return Optional.empty();
+        registrator.newDataStore(UserDataHolder.class)
+                .dataStore(Keys.NAME,
+                        (dv, v) -> dv.set(DataQuery.of("name"), v),
+                        dv -> dv.getString(DataQuery.of("name"))
+                );
+        registrator.asMutable(EntityDataHolder.class)
+                /**/.create(Keys.HEALTH)
+                /**//**/.get(h -> h.entity() instanceof Damageable ? ((Damageable) h.entity()).getHealth() : null)
+                /**//**/.set((h, v) -> {
+                    if (h.entity() instanceof Damageable) {
+                        ((Damageable) h.entity()).setHealth(v);
                     }
                 });
+
+        registrator.buildAndRegister();
 
         printer.accept("§8+-----------------------------------------------------");
         for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {
@@ -231,6 +189,7 @@ public class AuroraCore implements AuroraApi, Listener {
         }
     }
 
+    @SuppressWarnings("unused") // used by reflect in module plugin
     public static void onDisable(JavaPlugin plugin) {
         printer.accept("§8+-----------------------------------------------------");
         printer.accept("§8|§e [AuroraCore] 正在保存世界数据");
@@ -243,10 +202,12 @@ public class AuroraCore implements AuroraApi, Listener {
         printer.accept("§8+-----------------------------------------------------");
     }
 
+    @SuppressWarnings("unused") // used by reflect in module plugin
     public static boolean onCommand(JavaPlugin plugin, CommandSender sender, Command command, String label, String[] args) {
         return false;
     }
 
+    @SuppressWarnings("unused") // used by reflect in module plugin
     public static @Nullable List<String> onTabComplete(JavaPlugin plugin, CommandSender sender, Command command, String alias, String[] args) {
         return null;
     }
@@ -256,6 +217,10 @@ public class AuroraCore implements AuroraApi, Listener {
         Aurora.data().of(event.getPlayer())
                 .getDouble(Keys.HEALTH)
                 .ifPresent(it -> event.getPlayer().sendMessage("your health: " + it));
+
+        DataTransactionResult result = Aurora.data().of(event.getPlayer())
+                .transform(Keys.NAME, it -> "a" + it);
+        event.getPlayer().sendMessage(result.toString());
     }
 
     @EventHandler

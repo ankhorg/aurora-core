@@ -1,5 +1,6 @@
 package org.inksnow.core.util;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Objects;
@@ -23,7 +24,7 @@ public class Tuple<K, V> {
      * @param <V> The type of second object
      * @return The new Tuple
      */
-    public static <K, V> Tuple<K, V> of(final K first, final V second) {
+    public static <K, V> Tuple<K, V> of(final @NonNull K first, final @NonNull V second) {
         return new Tuple<>(first, second);
     }
 
@@ -36,7 +37,7 @@ public class Tuple<K, V> {
      * @param first The first object
      * @param second The second object
      */
-    public Tuple(final K first, final V second) {
+    public Tuple(final @NonNull K first, final @NonNull V second) {
         this.first = Objects.requireNonNull(first);
         this.second = Objects.requireNonNull(second);
     }

@@ -13,4 +13,8 @@ public interface ByteTag extends NumericTag {
     static ByteTag of(byte value) {
         return TagFactory.instance().byteTag(value);
     }
+
+    static ByteTag of(boolean value) {
+        return TagFactory.instance().byteTag(value);
+    }
 }

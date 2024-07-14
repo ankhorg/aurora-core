@@ -2,6 +2,8 @@ package org.inksnow.core.impl.data.holder;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.inksnow.core.data.holder.UserDataHolder;
 import org.inksnow.core.impl.data.provider.nbt.NBTDataType;
@@ -23,8 +25,8 @@ public class AuroraUserDataHolder extends AuroraNbtFileDataHolder implements Use
 
 
     @Override
-    public Optional<Player> player() {
-        return Optional.empty();
+    public Optional<? extends OfflinePlayer> player() {
+        return Optional.ofNullable(Bukkit.getServer().getOfflinePlayer(this.playerId));
     }
 
     @Override

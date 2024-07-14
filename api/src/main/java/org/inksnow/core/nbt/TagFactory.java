@@ -5,6 +5,11 @@ import org.inksnow.core.Aurora;
 import java.util.List;
 
 public interface TagFactory {
+    /**
+     * Get the instance of the TagFactory.
+     *
+     * @return the instance of the TagFactory
+     */
     static TagFactory instance() {
         return Aurora.getFactory(TagFactory.class);
     }
@@ -14,6 +19,8 @@ public interface TagFactory {
     Object unwrap(Tag tag);
 
     ByteTag byteTag(byte value);
+
+    ByteTag byteTag(boolean value);
 
     ShortTag shortTag(short value);
 

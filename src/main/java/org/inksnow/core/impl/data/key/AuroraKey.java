@@ -20,8 +20,16 @@ public class AuroraKey<V extends Value<E>, E> implements Key<V> {
     Type elementType;
     Supplier<@Nullable E> defaultValueSupplier;
 
-    @Getter(lazy = true)
-    EmptyDataProvider<V, E> emptyDataProvider = new EmptyDataProvider<>(this);
-    @Getter(lazy = true)
-    ValueConstructor<V, E> valueConstructor = ValueConstructorFactory.getConstructor(this);
+    EmptyDataProvider<V, E> emptyDataProvider;
+    ValueConstructor<V, E> valueConstructor;
+
+    public AuroraKey(ResourcePath resourcePath, Type valueType, Type elementType, Supplier<@Nullable E> defaultValueSupplier) {
+        this.resourcePath = resourcePath;
+        this.valueType = valueType;
+        this.elementType = elementType;
+        this.defaultValueSupplier = defaultValueSupplier;
+
+        this.emptyDataProvider = new EmptyDataProvider<>(this);
+        this.valueConstructor = ValueConstructorFactory.getConstructor(this);
+    }
 }

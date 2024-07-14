@@ -1,32 +1,10 @@
 package org.inksnow.core.impl.data;
 
-import net.kyori.adventure.text.Component;
-import net.minecraft.nbt.CompoundTag;
 import org.inksnow.core.data.persistence.DataTranslator;
 import org.inksnow.core.impl.data.persistence.DataSerializers;
+import org.inksnow.core.impl.data.persistence.NBTTranslator;
 import org.inksnow.core.impl.ref.nbt.RefNbtTagCompound;
-import org.spongepowered.api.data.persistence.DataTranslator;
-import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.schematic.Schematic;
-import org.spongepowered.common.data.persistence.DataSerializers;
-import org.spongepowered.common.data.persistence.NBTTranslator;
-import org.spongepowered.common.world.schematic.SchematicTranslator;
-import org.spongepowered.math.imaginary.Complexd;
-import org.spongepowered.math.imaginary.Complexf;
-import org.spongepowered.math.imaginary.Quaterniond;
-import org.spongepowered.math.imaginary.Quaternionf;
-import org.spongepowered.math.vector.Vector2d;
-import org.spongepowered.math.vector.Vector2f;
-import org.spongepowered.math.vector.Vector2i;
-import org.spongepowered.math.vector.Vector2l;
-import org.spongepowered.math.vector.Vector3d;
-import org.spongepowered.math.vector.Vector3f;
-import org.spongepowered.math.vector.Vector3i;
-import org.spongepowered.math.vector.Vector3l;
-import org.spongepowered.math.vector.Vector4d;
-import org.spongepowered.math.vector.Vector4f;
-import org.spongepowered.math.vector.Vector4i;
-import org.spongepowered.math.vector.Vector4l;
+import org.inksnow.core.nbt.CompoundTag;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -52,7 +30,7 @@ public final class DataTranslatorProvider {
         this.mappings.put(Instant.class, DataSerializers.INSTANT_DATA_SERIALIZER);
         this.mappings.put(ZonedDateTime.class, DataSerializers.ZONED_DATE_TIME_DATA_SERIALIZER);
         this.mappings.put(Month.class, DataSerializers.MONTH_DATA_SERIALIZER);
-        this.mappings.put(RefNbtTagCompound.class, NBTTranslator.INSTANCE);
+        this.mappings.put(CompoundTag.class, NBTTranslator.INSTANCE);
     }
 
 

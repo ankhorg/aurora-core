@@ -136,6 +136,11 @@ public final class AuroraTagFactory implements TagFactory {
     }
 
     @Override
+    public ByteTag byteTag(boolean value) {
+        return AuroraByteTag.of(value);
+    }
+
+    @Override
     public ShortTag shortTag(short value) {
         return AuroraShortTag.of(value);
     }

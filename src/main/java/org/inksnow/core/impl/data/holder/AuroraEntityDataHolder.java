@@ -9,6 +9,7 @@ import org.inksnow.core.impl.data.provider.nbt.NBTDataTypes;
 import org.inksnow.core.impl.ref.nbt.RefNbtTagCompound;
 
 import java.lang.ref.WeakReference;
+import java.util.Optional;
 
 public final class AuroraEntityDataHolder implements EntityDataHolder, DataCompoundHolder, AuroraMutableDataHolder {
     private final WeakReference<Entity> entityReference;
@@ -17,10 +18,11 @@ public final class AuroraEntityDataHolder implements EntityDataHolder, DataCompo
         this.entityReference = new WeakReference<>(entity);
     }
 
+    @Override
     public Entity entity() {
-        final @Nullable Entity entity = entityReference.get();
+        @Nullable Entity entity = entityReference.get();
         if (entity == null) {
-            throw new IllegalStateException("Entity is not available");
+            throw new IllegalStateException("Entity have been collected by GC, don't store DataHolder!");
         }
         return entity;
     }

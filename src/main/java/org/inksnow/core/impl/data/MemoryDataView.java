@@ -76,7 +76,7 @@ public class MemoryDataView implements DataView {
     }
 
     private MemoryDataView(final DataView parent, final DataQuery path, final DataView.SafetyMode safety) {
-        Preconditions.checkArgument(path.parts().size() >= 1, "Path must have at least one part");
+        Preconditions.checkArgument(!path.parts().isEmpty(), "Path must have at least one part");
         this.parent = parent;
         this.container = parent.container();
         this.path = parent.currentPath().then(path);

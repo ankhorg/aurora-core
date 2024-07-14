@@ -9,4 +9,9 @@ public class Keys {
             .resourcePath(ResourcePath.of("aurora:entity:health"))
             .elementType(Double.class)
             .build();
+
+    public static final Key<Value<String>> NAME = Key.builder()
+            .resourcePath(ResourcePath.of("aurora:player:name"))
+            .elementType(String.class)
+            .build();
 }

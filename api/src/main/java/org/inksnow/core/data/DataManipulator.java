@@ -243,6 +243,7 @@ public interface DataManipulator extends CopyableValueContainer {
          * @param <E> The type of element
          * @return This manipulator, for chaining
          */
+        @SuppressWarnings("argument")
         default <E> Immutable transform(final Key<? extends Value<E>> key, final Function<E, E> function) {
             Objects.requireNonNull(function, "function");
             return this.get(key).map(element -> this.with(key, Objects.requireNonNull(function.apply(element)))).orElse(this);
@@ -480,7 +481,7 @@ public interface DataManipulator extends CopyableValueContainer {
          * @param value The actual value to set
          * @return This manipulator, for chaining
          */
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"type.arguments.not.inferred"})
         default Mutable set(final Value<?> value) {
             return this.set((Key<? extends Value<Object>>) value.key(), value.get());
         }
@@ -530,6 +531,7 @@ public interface DataManipulator extends CopyableValueContainer {
          * @param <E> The type of element
          * @return This manipulator, for chaining
          */
+        @SuppressWarnings("argument")
         default <E> Mutable transform(final Key<? extends Value<E>> key, final Function<E, E> function) {
             if (!this.supports(key)) {
                 throw new IllegalArgumentException("The provided key is not supported: " + key.toString());

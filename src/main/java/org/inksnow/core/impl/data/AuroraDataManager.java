@@ -1,11 +1,7 @@
 package org.inksnow.core.impl.data;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MapMaker;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataHolder;
@@ -32,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,6 +42,7 @@ public class AuroraDataManager implements DataManager {
 
     private final DataStoreRegistry dataStoreRegistry;
     private final DataProviderRegistry dataProviderRegistry;
+
     private final Map<Class<?>, DataBuilder<?>> builders;
     private final Map<Class<? extends DataHolder.Immutable<?>>, DataHolderBuilder.Immutable<?, ?>> immutableDataBuilderMap;
     private final Map<String, ResourcePath> legacyRegistrations;
@@ -54,11 +50,11 @@ public class AuroraDataManager implements DataManager {
     private final Map<String, DataQuery> legacySpongeData = new HashMap<>();
 
     @com.google.inject.Inject
-    private AuroraDataManager() {
+    private AuroraDataManager(DataStoreRegistry dataStoreRegistry, DataProviderRegistry dataProviderRegistry) {
         AuroraDataManager.INSTANCE = this;
 
-        this.dataStoreRegistry = new DataStoreRegistry();
-        this.dataProviderRegistry = new DataProviderRegistry();
+        this.dataStoreRegistry = dataStoreRegistry;
+        this.dataProviderRegistry = dataProviderRegistry;
         this.builders = new HashMap<>();
         this.immutableDataBuilderMap = new MapMaker()
                 .concurrencyLevel(4)

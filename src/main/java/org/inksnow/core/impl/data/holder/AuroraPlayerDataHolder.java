@@ -2,6 +2,7 @@ package org.inksnow.core.impl.data.holder;
 
 import com.google.common.collect.ImmutableList;
 import lombok.SneakyThrows;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataHolder;
@@ -31,6 +32,15 @@ public class AuroraPlayerDataHolder extends AuroraUserDataHolder implements Enti
     @Override
     public Optional<Player> player() {
         return Optional.ofNullable(playerReference.get());
+    }
+
+    @Override
+    public Player entity() {
+        @Nullable Player player = playerReference.get();
+        if (player == null) {
+            throw new IllegalStateException("Player have been collected by GC, don't store DataHolder!");
+        }
+        return player;
     }
 
     @Override

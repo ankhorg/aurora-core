@@ -42,7 +42,7 @@ public class DataSerializer {
         }
 
         if (value instanceof ResourcePath) {
-            return value.toString();
+            return ((ResourcePath) value).asString();
         }
         if (value instanceof Collection) {
             return DataSerializer.serializeCollection(safetyMode, (Collection<?>) value);

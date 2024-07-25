@@ -16,8 +16,11 @@ public final class AuroraDataStore extends VanillaDataStore {
 
     private ResourcePath key;
 
-    public AuroraDataStore(ResourcePath key, final Map<Key<?>, Tuple<BiConsumer<DataView, ?>, Function<DataView, Optional<?>>>> queriesByKey,
-                           final Collection<Type> tokens) {
+    public AuroraDataStore(
+        ResourcePath key,
+        final Map<Key<?>, Tuple<BiConsumer<DataView, ?>, Function<DataView, Optional<?>>>> queriesByKey,
+        final Collection<Type> tokens
+    ) {
         super(queriesByKey, tokens);
         this.key = key;
     }

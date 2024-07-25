@@ -108,7 +108,12 @@ public interface DataStore {
     @SafeVarargs
     @SuppressWarnings("unchecked")
     static <T, V extends Value<T>> DataStore of(final Key<V> key, final DataQuery dataQuery, final TypeToken<? extends DataHolder> typeToken, final TypeToken<? extends DataHolder>... typeTokens) {
-        return DataStore.builder().pluginData(key.resourcePath()).holder(typeToken).holder(typeTokens).key(key, dataQuery).build();
+        return DataStore.builder()
+            .pluginData(key.resourcePath())
+            .holder(typeToken)
+            .holder(typeTokens)
+            .key(key, dataQuery)
+            .build();
     }
 
     /**

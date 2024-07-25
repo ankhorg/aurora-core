@@ -18,8 +18,10 @@ public class VanillaDataStore implements DataStore {
     private Map<Key<?>, Tuple<BiConsumer<DataView, ?>, Function<DataView, Optional<?>>>>  queriesByKey;
     private Collection<Type> tokens;
 
-    public VanillaDataStore(final Map<Key<?>, Tuple<BiConsumer<DataView, ?>, Function<DataView, Optional<?>>>> queriesByKey,
-            final Collection<Type> tokens) {
+    public VanillaDataStore(
+        final Map<Key<?>, Tuple<BiConsumer<DataView, ?>, Function<DataView, Optional<?>>>> queriesByKey,
+        final Collection<Type> tokens
+    ) {
         this.queriesByKey = queriesByKey;
         this.tokens = tokens;
     }

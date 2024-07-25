@@ -4,7 +4,7 @@ import org.inksnow.ankhinvoke.comments.HandleBy;
 
 @HandleBy(reference = "net/minecraft/world/item/Item", predicates = "craftbukkit_version:[v1_17_R1,)")
 @HandleBy(reference = "net/minecraft/server/v1_12_R1/Item", predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")
-public class RefItem {
+public final class RefItem {
     @HandleBy(reference = "Lnet/minecraft/world/item/Item;getDescriptionId()Ljava/lang/String;", predicates = "craftbukkit_version:[v1_17_R1,)")
     @HandleBy(reference = "Lnet/minecraft/server/v1_12_R1/Item;getName()Ljava/lang/String;", predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")
     public native String getDescriptionId();

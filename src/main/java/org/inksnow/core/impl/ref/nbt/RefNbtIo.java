@@ -13,7 +13,7 @@ import java.nio.file.Path;
 
 @HandleBy(reference = "net/minecraft/nbt/NbtIo", predicates = "craftbukkit_version:[v1_17_R1,)")
 @HandleBy(reference = "net/minecraft/server/v1_12_R1/NBTCompressedStreamTools", predicates = "craftbukkit_version:[v1_12_R1,v1_17_R1)")
-public class RefNbtIo {
+public final class RefNbtIo {
     @HandleBy(reference = "Lnet/minecraft/nbt/NbtIo;readCompressed(Ljava/nio/file/Path;Lnet/minecraft/nbt/NbtAccounter;)Lnet/minecraft/nbt/CompoundTag;", predicates = "craftbukkit_version:[v1_20_R1,)")
     public static native RefNbtTagCompound readCompressed1(Path path, RefNbtAccounter tagSizeTracker) throws IOException;
 

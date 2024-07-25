@@ -60,7 +60,7 @@ public class DataProviderRegistrator {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void spongeDataStore(final ResourcePath datastoreKey, final Class dataHolder, final Key<? extends Value<?>>... dataKeys) {
+    public void auroraDataStore(final ResourcePath datastoreKey, final Class dataHolder, final Key<? extends Value<?>>... dataKeys) {
         final AuroraDataStoreBuilder builder = ((AuroraDataStoreBuilder) DataStore.builder()).pluginData(datastoreKey);
         builder.holder(dataHolder);
         for (Key dataKey : dataKeys) {
@@ -69,8 +69,11 @@ public class DataProviderRegistrator {
         AuroraDataManager.getDatastoreRegistry().register(builder.build(), Arrays.asList(dataKeys));
     }
 
-    public <K, V extends Value<K>> DataProviderRegistrator dataStore(final Key<V> key, final BiConsumer<DataView, K> serializer,
-                                                                     final Function<DataView, Optional<K>> deserializer) {
+    public <K, V extends Value<K>> DataProviderRegistrator dataStore(
+        final Key<V> key,
+        final BiConsumer<DataView, K> serializer,
+        final Function<DataView, Optional<K>> deserializer
+    ) {
         this.dataStoreBuilder.key(key, serializer, deserializer);
         this.dataStoreBuilder.getDataHolderTypes().forEach(typeToken -> this.registerDataStoreDelegatingProvider(key, typeToken));
         return this;
@@ -83,7 +86,11 @@ public class DataProviderRegistrator {
                     .create(key)
                     .get(holder -> {
                         final DataContainer dataContainer = ((DataContainerHolder) holder).data$getDataContainer();
-                        return AuroraDataManager.getDatastoreRegistry().getDataStore(key, typeToken).deserialize(dataContainer).get(key).orElse(null);
+                        return AuroraDataManager.getDatastoreRegistry()
+                            .getDataStore(key, typeToken)
+                            .deserialize(dataContainer)
+                            .get(key)
+                            .orElse(null);
                     })
                     .set((holder, v) -> {
                         final DataContainer dataContainer = ((DataContainerHolder) holder).data$getDataContainer();

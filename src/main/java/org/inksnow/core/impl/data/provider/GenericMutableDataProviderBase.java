@@ -239,6 +239,6 @@ public abstract class GenericMutableDataProviderBase<H, V extends Value<E>, E> e
         return valueChange.endResult().successfulValue(replacementValue.key());
          */
         logger.warn("callReplacementEvent is not implemented, dataHolder: {}, originalValue: {}, replacementValue: {}", dataHolder, originalValue, replacementValue);
-        return Optional.empty();
+        return Optional.of(replacementValue);
     }
 }

@@ -2,20 +2,21 @@ package org.inksnow.core.impl.data.holder;
 
 import com.google.common.collect.ImmutableList;
 import lombok.SneakyThrows;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.holder.EntityDataHolder;
+import org.inksnow.core.data.persistence.DataContainer;
+import org.inksnow.core.impl.bridge.data.DataContainerHolder;
 
 import java.lang.ref.WeakReference;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class AuroraPlayerDataHolder extends AuroraUserDataHolder implements EntityDataHolder {
+public final class AuroraPlayerDataHolder extends AuroraUserDataHolder implements EntityDataHolder {
     private final WeakReference<Player> playerReference;
     private final AuroraEntityDataHolder entityDataHolder;
+    private @Nullable DataContainer dataContainer;
 
     @SneakyThrows
     public AuroraPlayerDataHolder(Player player) {

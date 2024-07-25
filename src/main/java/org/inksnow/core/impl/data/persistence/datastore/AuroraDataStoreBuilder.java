@@ -9,6 +9,7 @@ import org.inksnow.core.data.persistence.DataStore;
 import org.inksnow.core.data.persistence.DataView;
 import org.inksnow.core.data.value.Value;
 import org.inksnow.core.impl.data.DataDeserializer;
+import org.inksnow.core.impl.data.store.AuroraDataStore;
 import org.inksnow.core.impl.data.store.VanillaDataStore;
 import org.inksnow.core.impl.util.TypeTokenUtil;
 import org.inksnow.core.resource.ResourcePath;
@@ -109,7 +110,18 @@ public final class AuroraDataStoreBuilder implements DataStore.Builder, DataStor
 
     @Override
     public DataStore build() {
-        return new VanillaDataStore(Collections.unmodifiableMap(this.serializers), this.dataHolderTypes);
+        if (key == null) {
+            return new VanillaDataStore(
+                Collections.unmodifiableMap(this.serializers),
+                this.dataHolderTypes
+            );
+        } else {
+            return new AuroraDataStore(
+                key,
+                Collections.unmodifiableMap(this.serializers),
+                this.dataHolderTypes
+            );
+        }
     }
 
     private static class SpongeDataSerializer<T> implements BiConsumer<DataView, T> {

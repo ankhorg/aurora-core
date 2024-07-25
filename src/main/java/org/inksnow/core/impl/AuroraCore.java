@@ -9,11 +9,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -70,6 +72,13 @@ public class AuroraCore implements AuroraApi, Listener {
     private static boolean serverBootstrap = false;
 
     static {
+        AuroraLoggerFactory.instance().nameMapping(name->{
+            if (name.startsWith("org.inksnow.core.impl.")) {
+                return "AuroraCore " + name.substring("org.inksnow.core.impl.".length());
+            } else {
+                return name;
+            }
+        });
         AuroraLoggerFactory.instance().provider(new AuroraParentLogger("aurora.core.loader.slf4j"));
 
         final @Nullable ClassLoader classLoader = AuroraCore.class.getClassLoader();
@@ -167,11 +176,17 @@ public class AuroraCore implements AuroraApi, Listener {
 
         DataProviderRegistrator registrator = new DataProviderRegistrator();
 
-        registrator.newDataStore(UserDataHolder.class)
+        registrator.newDataStore(AuroraPlayerDataHolder.class)
                 .dataStore(Keys.NAME,
                         (dv, v) -> dv.set(DataQuery.of("name"), v),
                         dv -> dv.getString(DataQuery.of("name"))
                 );
+
+        // registrator.asMutable(AuroraPlayerDataHolder.class)
+        //         .create(Keys.NAME)
+        //         .get(h -> h.player().map(p->p.getPlayer().getDisplayName()).orElse(null))
+        //         .set((h, v) -> h.player().ifPresent(p -> p.getPlayer().setDisplayName(v)));
+
         registrator.asMutable(EntityDataHolder.class)
                 /**/.create(Keys.HEALTH)
                 /**//**/.get(h -> h.entity() instanceof Damageable ? ((Damageable) h.entity()).getHealth() : null)
@@ -181,6 +196,7 @@ public class AuroraCore implements AuroraApi, Listener {
                     }
                 });
 
+        // registrator.auroraDataStore(ResourcePath.of("aurora:player"), UserDataHolder.class, Keys.NAME);
         registrator.buildAndRegister();
 
         printer.accept("§8+-----------------------------------------------------");
@@ -219,7 +235,7 @@ public class AuroraCore implements AuroraApi, Listener {
                 .ifPresent(it -> event.getPlayer().sendMessage("your health: " + it));
 
         DataTransactionResult result = Aurora.data().of(event.getPlayer())
-                .transform(Keys.NAME, it -> "a" + it);
+            .offer(Keys.NAME, "aaa");
         event.getPlayer().sendMessage(result.toString());
     }
 

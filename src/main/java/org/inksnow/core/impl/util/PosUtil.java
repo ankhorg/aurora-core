@@ -7,22 +7,54 @@ import org.bukkit.Location;
 @UtilityClass
 public class PosUtil {
 
+    /**
+     * Get the block ID of a location.
+     *
+     * @param x the X coordinate
+     * @param y the Y coordinate
+     * @param z the Z coordinate
+     * @return the block ID
+     */
     public static int locationXYZ_blockId(int x, int y, int z) {
         return ((y) << 8) | ((z & 0b1111) << 4) | (x & 0b1111);
     }
 
+    /**
+     * Get the block ID of a location.
+     *
+     * @param location the location
+     * @return the block ID
+     */
     public static int location_blockId(Location location) {
         return locationXYZ_blockId(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
+    /**
+     * Get the X coordinate of a block from the block ID.
+     *
+     * @param blockId the block ID
+     * @return the X coordinate of the block
+     */
     public static int locationXYZ_blockX(int blockId) {
         return blockId & 0b1111;
     }
 
+    /**
+     * Get the Y coordinate of a block from the block ID.
+     *
+     * @param blockId the block ID
+     * @return the Y coordinate of the block
+     */
     public static int locationXYZ_blockY(int blockId) {
         return blockId >> 8;
     }
 
+    /**
+     * Get the Z coordinate of a block from the block ID.
+     *
+     * @param blockId the block ID
+     * @return the Z coordinate of the block
+     */
     public static int locationXYZ_blockZ(int blockId) {
         return (blockId >> 4) & 0b1111;
     }

@@ -11,7 +11,7 @@ plugins {
     id("checkstyle")
 
     // ankh-invoke
-    id("org.inksnow.ankh-invoke-gradle-plugin") version "1.0.12-SNAPSHOT"
+    id("org.inksnow.ankh-invoke-gradle-plugin") version "1.0.13-SNAPSHOT"
 }
 
 allprojects {
@@ -109,7 +109,7 @@ dependencies {
         exclude(group = "com.google.guava", module = "guava") // we need checkerframework
     }
     compileOnlyApi(project(":api"))
-    implementation("org.inksnow:ankh-invoke-bukkit:1.0.12-SNAPSHOT")
+    implementation("org.inksnow:ankh-invoke-bukkit:1.0.13-SNAPSHOT")
     implementation("io.leangen.geantyref:geantyref:1.3.15")
     implementation("com.github.luben:zstd-jni:1.5.6-3")
     implementation("org.lz4:lz4-java:1.8.0")
@@ -127,6 +127,9 @@ tasks.create<BuildMappingsTask>("build-mappings") {
     registryName = "aurora-core"
     outputDirectory = buildDir.resolve("cache/build-mappings")
 
+    mapping("nms", "1.21") {
+        predicates = arrayOf("craftbukkit_version:{v1_21_R1}")
+    }
     mapping("nms", "1.20.6") {
         predicates = arrayOf("craftbukkit_version:{v1_20_R4}")
     }

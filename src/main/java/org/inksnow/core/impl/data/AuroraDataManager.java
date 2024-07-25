@@ -1,6 +1,7 @@
 package org.inksnow.core.impl.data;
 
 import com.google.common.collect.MapMaker;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -49,7 +50,7 @@ public class AuroraDataManager implements DataManager {
     private final List<KeyBasedDataListener<?>> keyListeners;
     private final Map<String, DataQuery> legacySpongeData = new HashMap<>();
 
-    @com.google.inject.Inject
+    @Inject
     private AuroraDataManager(DataStoreRegistry dataStoreRegistry, DataProviderRegistry dataProviderRegistry) {
         AuroraDataManager.INSTANCE = this;
 

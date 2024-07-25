@@ -1,20 +1,12 @@
 package org.inksnow.core.impl.util;
 
 import lombok.experimental.UtilityClass;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.inksnow.core.data.key.Key;
+import org.inksnow.core.data.value.MergeFunction;
+import org.inksnow.core.data.value.Value;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -62,5 +54,16 @@ public class DataUtil {
             return map;
         }
         return new LinkedHashMap<>(map);
+    }
+
+    public static <E, V extends Value<E>> E merge(
+        MergeFunction function,
+        Key<V> key,
+        @Nullable E original,
+        @Nullable E replacement
+    ) {
+        @Nullable final V originalValue = original == null ? null : Value.genericImmutableOf(key, original);
+        @Nullable final V value = replacement == null ? null : Value.genericImmutableOf(key, replacement);
+        return Objects.requireNonNull(function.merge(originalValue, value), "merged").get();
     }
 }

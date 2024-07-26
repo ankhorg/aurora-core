@@ -8,12 +8,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Damageable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,6 +32,7 @@ import org.inksnow.ankhinvoke.reference.ResourceReferenceSource;
 import org.inksnow.core.Aurora;
 import org.inksnow.core.AuroraApi;
 import org.inksnow.core.data.DataTransactionResult;
+import org.inksnow.core.data.holder.BlockDataHolder;
 import org.inksnow.core.data.holder.EntityDataHolder;
 import org.inksnow.core.data.holder.UserDataHolder;
 import org.inksnow.core.data.persistence.DataQuery;
@@ -155,20 +158,28 @@ public class AuroraCore implements AuroraApi, Listener {
         Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraWorldDataService.class), plugin);
         Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraPlayerDataService.class), plugin);
         Bukkit.getScheduler().runTask(plugin, () -> serverBootstrap = true);
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            instance.injector.getInstance(AuroraPlayerDataService.class).flush();
+        }, 0, 20 * 60 * 5);
 
+        // user
+        new DataProviderRegistrator()
+                .newDataStore(UserDataHolder.class)
+                .dataStore(Keys.PLAYER_MESSAGE_COUNTER,
+                        (dv, v) -> dv.set(DataQuery.of("player_message_counter"), v),
+                        dv -> dv.getInt(DataQuery.of("player_message_counter"))
+                ).buildAndRegister();
+
+        // block
+        new DataProviderRegistrator()
+                .newDataStore(BlockDataHolder.class)
+                .dataStore(Keys.BLOCK_CLICK_COUNTER,
+                        (dv, v) -> dv.set(DataQuery.of("block_click_counter"), v),
+                        dv -> dv.getInt(DataQuery.of("block_click_counter"))
+                ).buildAndRegister();
+
+        // entity
         DataProviderRegistrator registrator = new DataProviderRegistrator();
-
-        registrator.newDataStore(UserDataHolder.class)
-                .dataStore(Keys.NAME,
-                        (dv, v) -> dv.set(DataQuery.of("name"), v),
-                        dv -> dv.getString(DataQuery.of("name"))
-                );
-
-        // registrator.asMutable(AuroraPlayerDataHolder.class)
-        //         .create(Keys.NAME)
-        //         .get(h -> h.player().map(p->p.getPlayer().getDisplayName()).orElse(null))
-        //         .set((h, v) -> h.player().ifPresent(p -> p.getPlayer().setDisplayName(v)));
-
         registrator.asMutable(EntityDataHolder.class)
                 /**/.create(Keys.HEALTH)
                 /**//**/.get(h -> h.entity() instanceof Damageable ? ((Damageable) h.entity()).getHealth() : null)
@@ -190,10 +201,11 @@ public class AuroraCore implements AuroraApi, Listener {
     @SuppressWarnings("unused") // used by reflect in module plugin
     public static void onDisable(JavaPlugin plugin) {
         printer.accept("§8+-----------------------------------------------------");
-        printer.accept("§8|§e [AuroraCore] 正在保存世界数据");
+        printer.accept("§8|§e [AuroraCore] 正在保存世界数据...");
         instance().injector
                 .getInstance(AuroraWorldDataService.class)
                 .close();
+        printer.accept("§8|§e [AuroraCore] 正在保存玩家数据...");
         instance().injector
                 .getInstance(AuroraPlayerDataService.class)
                 .close();
@@ -217,9 +229,30 @@ public class AuroraCore implements AuroraApi, Listener {
             .require(Keys.HEALTH)
         );
 
+        int messageCounter = Aurora.data()
+            .of(event.getPlayer())
+            .getInt(Keys.PLAYER_MESSAGE_COUNTER)
+            .orElse(0);
         DataTransactionResult result = Aurora.data()
             .of(event.getPlayer())
-            .offer(Keys.NAME, "aaa");
+            .offer(Keys.PLAYER_MESSAGE_COUNTER, messageCounter + 1);
+
+        event.getPlayer().sendMessage(result.toString());
+    }
+
+    @EventHandler
+    public void onClick(PlayerInteractEvent event) {
+        Block block = event.getClickedBlock();
+        if (block == null) {
+            return;
+        }
+        int clickCounter = Aurora.data()
+            .of(event.getClickedBlock())
+            .getInt(Keys.BLOCK_CLICK_COUNTER)
+            .orElse(0);
+        DataTransactionResult result = Aurora.data()
+            .of(event.getClickedBlock())
+            .offer(Keys.BLOCK_CLICK_COUNTER, clickCounter + 1);
 
         event.getPlayer().sendMessage(result.toString());
     }

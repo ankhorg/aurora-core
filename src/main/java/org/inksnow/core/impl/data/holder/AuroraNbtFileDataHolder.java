@@ -49,7 +49,7 @@ public abstract class AuroraNbtFileDataHolder implements DataCompoundHolder, Dat
     }
 
     @SneakyThrows
-    protected void flush() {
+    public void flush() {
         logger.debug("Flushing nbt file data: {}", persistentDataPath);
         Files.createDirectories(persistentDataPath.getParent());
 

@@ -10,8 +10,13 @@ public class Keys {
             .elementType(Double.class)
             .build();
 
-    public static final Key<Value<String>> NAME = Key.builder()
-            .resourcePath(ResourcePath.of("aurora:player:name"))
-            .elementType(String.class)
+    public static final Key<Value<Integer>> PLAYER_MESSAGE_COUNTER = Key.builder()
+            .resourcePath(ResourcePath.of("aurora:player:message_counter"))
+            .elementType(Integer.class)
+            .build();
+
+    public static final Key<Value<Integer>> BLOCK_CLICK_COUNTER = Key.builder()
+            .resourcePath(ResourcePath.of("aurora:block:click_counter"))
+            .elementType(Integer.class)
             .build();
 }

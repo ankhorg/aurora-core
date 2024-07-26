@@ -96,7 +96,9 @@ public class DataProviderRegistrator {
                         final DataContainer dataContainer = ((DataContainerHolder) holder).getDataContainer();
                         final DataManipulator.Mutable manipulator = DataManipulator.mutableOf();
                         manipulator.set(key, v);
-                        AuroraDataManager.getDatastoreRegistry().getDataStore(key, typeToken).serialize(manipulator, dataContainer);
+                        AuroraDataManager.getDatastoreRegistry()
+                                .getDataStore(key, typeToken)
+                                .serialize(manipulator, dataContainer);
                         ((DataContainerHolder.Mutable) holder).setDataContainer(dataContainer);
                     });
         } else if (GenericTypeReflector.isSuperType(DataProviderRegistrator.IMMUTABLE, typeToken)) {

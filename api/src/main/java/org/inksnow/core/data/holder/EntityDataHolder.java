@@ -4,6 +4,6 @@ import org.bukkit.entity.Entity;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.persistence.DataContainerHolder;
 
-public interface EntityDataHolder extends DataHolder, DataContainerHolder.Mutable {
+public interface EntityDataHolder extends DataHolder.Mutable, DataContainerHolder.Mutable {
     Entity entity();
 }

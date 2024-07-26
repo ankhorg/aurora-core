@@ -52,8 +52,8 @@ public final class AuroraDataStoreBuilder implements DataStore.Builder, DataStor
     public <T, V extends Value<T>> AuroraDataStoreBuilder key(final Key<V> key, final BiConsumer<DataView, T> serializer, final Function<DataView, Optional<T>> deserializer) {
         if (this.key != null) {
             final DataQuery query = this.key.asDataQuery();
-            final SpongeDataSerializer<T> customSerializer = new SpongeDataSerializer<>(serializer, query);
-            final SpongeDataDeserializer<T> customDeserializer = new SpongeDataDeserializer<>(deserializer, query);
+            final AuroraDataSerializer<T> customSerializer = new AuroraDataSerializer<>(serializer, query);
+            final AuroraDataDeserializer<T> customDeserializer = new AuroraDataDeserializer<>(deserializer, query);
             this.serializers.put(key, (Tuple) Tuple.of(customSerializer, customDeserializer));
         } else {
             this.serializers.put(key, (Tuple) Tuple.of(serializer, deserializer));
@@ -124,12 +124,12 @@ public final class AuroraDataStoreBuilder implements DataStore.Builder, DataStor
         }
     }
 
-    private static class SpongeDataSerializer<T> implements BiConsumer<DataView, T> {
+    private static class AuroraDataSerializer<T> implements BiConsumer<DataView, T> {
 
         private final BiConsumer<DataView, T> serializer;
         private final DataQuery key;
 
-        public SpongeDataSerializer(final BiConsumer<DataView, T> serializer, final DataQuery key) {
+        public AuroraDataSerializer(final BiConsumer<DataView, T> serializer, final DataQuery key) {
             this.serializer = serializer;
             this.key = key;
         }
@@ -143,12 +143,12 @@ public final class AuroraDataStoreBuilder implements DataStore.Builder, DataStor
         }
     }
 
-    private static class SpongeDataDeserializer<T> implements Function<DataView, Optional<T>> {
+    private static class AuroraDataDeserializer<T> implements Function<DataView, Optional<T>> {
 
         private final Function<DataView, Optional<T>> deserializer;
         private final DataQuery key;
 
-        public SpongeDataDeserializer(final Function<DataView, Optional<T>> deserializer, final DataQuery key) {
+        public AuroraDataDeserializer(final Function<DataView, Optional<T>> deserializer, final DataQuery key) {
             this.deserializer = deserializer;
             this.key = key;
         }

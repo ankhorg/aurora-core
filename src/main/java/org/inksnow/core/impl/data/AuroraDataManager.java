@@ -4,7 +4,6 @@ import com.google.common.collect.MapMaker;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.DataManager;
 import org.inksnow.core.data.holder.DataHolderBuilder;
@@ -12,7 +11,6 @@ import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.persistence.AbstractDataBuilder;
 import org.inksnow.core.data.persistence.DataBuilder;
 import org.inksnow.core.data.persistence.DataContainer;
-import org.inksnow.core.data.persistence.DataQuery;
 import org.inksnow.core.data.persistence.DataSerializable;
 import org.inksnow.core.data.persistence.DataStore;
 import org.inksnow.core.data.persistence.DataTranslator;
@@ -48,7 +46,6 @@ public class AuroraDataManager implements DataManager {
     private final Map<Class<? extends DataHolder.Immutable<?>>, DataHolderBuilder.Immutable<?, ?>> immutableDataBuilderMap;
     private final Map<String, ResourcePath> legacyRegistrations;
     private final List<KeyBasedDataListener<?>> keyListeners;
-    private final Map<String, DataQuery> legacySpongeData = new HashMap<>();
 
     @Inject
     private AuroraDataManager(DataStoreRegistry dataStoreRegistry, DataProviderRegistry dataProviderRegistry) {
@@ -262,9 +259,5 @@ public class AuroraDataManager implements DataManager {
 
     public Optional<DataStore> getDataStore(ResourcePath key, Class<? extends DataHolder> typeToken) {
         return this.dataStoreRegistry.getDataStore(key, typeToken);
-    }
-
-    public @Nullable DataQuery legacySpongeDataQuery(String nbtKey) {
-        return this.legacySpongeData.get(nbtKey);
     }
 }

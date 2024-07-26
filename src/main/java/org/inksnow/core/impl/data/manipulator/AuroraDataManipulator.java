@@ -7,7 +7,12 @@ import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.value.Value;
 import org.inksnow.core.impl.util.CopyHelper;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 
 @SuppressWarnings("unchecked")
 abstract class AuroraDataManipulator implements DataManipulator {
@@ -18,7 +23,7 @@ abstract class AuroraDataManipulator implements DataManipulator {
         this.values = values;
     }
 
-    Map<Key<?>, Object> copyMap() {
+    /* package-private*/ Map<Key<?>, Object> copyMap() {
         final Map<Key<?>, Object> copy = new HashMap<>();
         for (final Map.Entry<Key<?>, Object> entry : this.values.entrySet()) {
             copy.put(entry.getKey(), CopyHelper.copy(entry.getValue()));

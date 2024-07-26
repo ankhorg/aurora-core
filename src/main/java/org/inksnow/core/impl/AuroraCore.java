@@ -3,19 +3,14 @@ package org.inksnow.core.impl;
 import com.google.common.base.Preconditions;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import io.leangen.geantyref.GenericTypeReflector;
 import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Damageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -34,33 +29,20 @@ import org.inksnow.ankhinvoke.classpool.ResourcePoolLoader;
 import org.inksnow.ankhinvoke.reference.ResourceReferenceSource;
 import org.inksnow.core.Aurora;
 import org.inksnow.core.AuroraApi;
-import org.inksnow.core.data.DataApi;
-import org.inksnow.core.data.DataHolder;
-import org.inksnow.core.data.DataRegistration;
 import org.inksnow.core.data.DataTransactionResult;
 import org.inksnow.core.data.holder.EntityDataHolder;
 import org.inksnow.core.data.holder.UserDataHolder;
-import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.persistence.DataQuery;
-import org.inksnow.core.data.provider.DataProvider;
-import org.inksnow.core.data.value.Value;
 import org.inksnow.core.impl.data.AuroraData;
-import org.inksnow.core.impl.data.AuroraDataRegistrationBuilder;
-import org.inksnow.core.impl.data.holder.AuroraEntityDataHolder;
-import org.inksnow.core.impl.data.holder.AuroraPlayerDataHolder;
 import org.inksnow.core.impl.data.provider.DataProviderRegistrator;
-import org.inksnow.core.impl.data.provider.DataProviderRegistry;
 import org.inksnow.core.impl.data.store.player.AuroraPlayerDataService;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
-import org.inksnow.core.resource.ResourcePath;
 import org.inksnow.core.util.Builder;
 import org.inksnow.cputil.logger.AuroraLoggerFactory;
 import org.inksnow.cputil.logger.impl.parent.AuroraParentLogger;
 
-import java.lang.reflect.Type;
 import java.net.URLClassLoader;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
@@ -176,7 +158,7 @@ public class AuroraCore implements AuroraApi, Listener {
 
         DataProviderRegistrator registrator = new DataProviderRegistrator();
 
-        registrator.newDataStore(AuroraPlayerDataHolder.class)
+        registrator.newDataStore(UserDataHolder.class)
                 .dataStore(Keys.NAME,
                         (dv, v) -> dv.set(DataQuery.of("name"), v),
                         dv -> dv.getString(DataQuery.of("name"))
@@ -230,12 +212,15 @@ public class AuroraCore implements AuroraApi, Listener {
 
     @EventHandler
     public void onChat(PlayerChatEvent event) {
-        Aurora.data().of(event.getPlayer())
-                .getDouble(Keys.HEALTH)
-                .ifPresent(it -> event.getPlayer().sendMessage("your health: " + it));
+        event.getPlayer().sendMessage("your health: " + Aurora.data()
+            .of(event.getPlayer())
+            .require(Keys.HEALTH)
+        );
 
-        DataTransactionResult result = Aurora.data().of(event.getPlayer())
+        DataTransactionResult result = Aurora.data()
+            .of(event.getPlayer())
             .offer(Keys.NAME, "aaa");
+
         event.getPlayer().sendMessage(result.toString());
     }
 

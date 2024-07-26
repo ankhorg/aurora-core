@@ -3,13 +3,16 @@ package org.inksnow.core.data.key;
 import io.leangen.geantyref.TypeToken;
 import org.checkerframework.common.returnsreceiver.qual.This;
 import org.inksnow.core.Aurora;
+import org.inksnow.core.data.DataHolder;
+import org.inksnow.core.data.DataRegistration;
+import org.inksnow.core.data.provider.DataProvider;
 import org.inksnow.core.data.value.ListValue;
 import org.inksnow.core.data.value.MapValue;
 import org.inksnow.core.data.value.SetValue;
 import org.inksnow.core.data.value.Value;
+import org.inksnow.core.data.value.ValueContainer;
 import org.inksnow.core.resource.ResourcePath;
 import org.inksnow.core.resource.WithResourcePath;
-import org.inksnow.core.util.Builder;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -30,7 +33,7 @@ import java.util.Set;
  * is optional. This would mean that any submitted {@link Value}s of a
  * {@link Key} without an associated {@link DataRegistration} will be only
  * stored on a
- * {@link org.spongepowered.api.data.DataHolder.Mutable mutable DataHolder} for
+ * {@link DataHolder.Mutable mutable DataHolder} for
  * the duration that that holder exists. The value would not persist between
  * reloads, restarts, etc.</p>
  *

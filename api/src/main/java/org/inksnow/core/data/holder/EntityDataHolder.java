@@ -2,9 +2,8 @@ package org.inksnow.core.data.holder;
 
 import org.bukkit.entity.Entity;
 import org.inksnow.core.data.DataHolder;
+import org.inksnow.core.data.persistence.DataContainerHolder;
 
-import java.util.Optional;
-
-public interface EntityDataHolder extends DataHolder {
+public interface EntityDataHolder extends DataHolder, DataContainerHolder.Mutable {
     Entity entity();
 }

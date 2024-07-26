@@ -1,7 +1,6 @@
 package org.inksnow.core.data.event;
 
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.DataTransactionResult;
 import org.inksnow.core.data.value.Value;
@@ -24,7 +23,7 @@ public interface ChangeDataHolderEvent extends Cancellable {
     interface ValueChange extends ChangeDataHolderEvent {
 
         /**
-         * Gets the original {@link DataTransactionResult} of the {@link org.spongepowered.api.data.value.Value.Mutable}s
+         * Gets the original {@link DataTransactionResult} of the {@link Value.Mutable}s
          * that have changed in this event.
          *
          * @return The original changes of values

@@ -10,12 +10,12 @@ import org.inksnow.core.data.DataTransactionResult;
 import org.inksnow.core.data.ImmutableDataProviderBuilder;
 import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.persistence.DataContainer;
+import org.inksnow.core.data.persistence.DataContainerHolder;
 import org.inksnow.core.data.persistence.DataStore;
 import org.inksnow.core.data.persistence.DataView;
 import org.inksnow.core.data.provider.DataProvider;
 import org.inksnow.core.data.provider.MutableDataProviderBuilder;
 import org.inksnow.core.data.value.Value;
-import org.inksnow.core.impl.bridge.data.DataContainerHolder;
 import org.inksnow.core.impl.data.AuroraDataManager;
 import org.inksnow.core.impl.data.AuroraDataRegistration;
 import org.inksnow.core.impl.data.AuroraDataRegistrationBuilder;
@@ -85,7 +85,7 @@ public class DataProviderRegistrator {
             this.asMutable(GenericTypeReflector.erase(typeToken))
                     .create(key)
                     .get(holder -> {
-                        final DataContainer dataContainer = ((DataContainerHolder) holder).data$getDataContainer();
+                        final DataContainer dataContainer = ((DataContainerHolder) holder).getDataContainer();
                         return AuroraDataManager.getDatastoreRegistry()
                             .getDataStore(key, typeToken)
                             .deserialize(dataContainer)
@@ -93,25 +93,25 @@ public class DataProviderRegistrator {
                             .orElse(null);
                     })
                     .set((holder, v) -> {
-                        final DataContainer dataContainer = ((DataContainerHolder) holder).data$getDataContainer();
+                        final DataContainer dataContainer = ((DataContainerHolder) holder).getDataContainer();
                         final DataManipulator.Mutable manipulator = DataManipulator.mutableOf();
                         manipulator.set(key, v);
                         AuroraDataManager.getDatastoreRegistry().getDataStore(key, typeToken).serialize(manipulator, dataContainer);
-                        ((DataContainerHolder.Mutable) holder).data$setDataContainer(dataContainer);
+                        ((DataContainerHolder.Mutable) holder).setDataContainer(dataContainer);
                     });
         } else if (GenericTypeReflector.isSuperType(DataProviderRegistrator.IMMUTABLE, typeToken)) {
             this.asImmutable((Class<? super H>) GenericTypeReflector.erase(typeToken))
                     .create(key)
                     .get(holder -> {
-                        final DataContainer dataContainer = ((DataContainerHolder) holder).data$getDataContainer();
+                        final DataContainer dataContainer = ((DataContainerHolder) holder).getDataContainer();
                         return AuroraDataManager.getDatastoreRegistry().getDataStore(key, typeToken).deserialize(dataContainer).get(key).orElse(null);
                     })
                     .set((holder, v) -> {
-                        final DataContainer dataContainer = ((DataContainerHolder) holder).data$getDataContainer();
+                        final DataContainer dataContainer = ((DataContainerHolder) holder).getDataContainer();
                         final DataManipulator.Mutable manipulator = DataManipulator.mutableOf();
                         manipulator.set(key, v);
                         AuroraDataManager.getDatastoreRegistry().getDataStore(key, typeToken).serialize(manipulator, dataContainer);
-                        return (H) ((DataContainerHolder.Immutable) holder).data$withDataContainer(dataContainer);
+                        return (H) ((DataContainerHolder.Immutable) holder).withDataContainer(dataContainer);
                     });
         }
     }
@@ -528,7 +528,7 @@ public class DataProviderRegistrator {
         }
     }
 
-    public static class SpongeImmutableDataProviderBuilder<H extends DataHolder, V extends Value<E>, E, R extends ImmutableRegistrationBase<H, E, R>> implements ImmutableDataProviderBuilder<H, V, E> {
+    public static class AuroraImmutableDataProviderBuilder<H extends DataHolder, V extends Value<E>, E, R extends ImmutableRegistrationBase<H, E, R>> implements ImmutableDataProviderBuilder<H, V, E> {
 
         private ImmutableRegistrationBase<H, E, R> registration;
         private Type holder;
@@ -536,19 +536,19 @@ public class DataProviderRegistrator {
         @Override
         public <NV extends Value<NE>, NE> ImmutableDataProviderBuilder<H, NV, NE> key(Key<NV> key) {
             this.registration = new ImmutableRegistrationBase(key);
-            return (SpongeImmutableDataProviderBuilder) this;
+            return (AuroraImmutableDataProviderBuilder) this;
         }
 
         @Override
         public <NH extends H> ImmutableDataProviderBuilder<NH, V, E> dataHolder(TypeToken<NH> holder) {
             this.holder = holder.getType();
-            return (SpongeImmutableDataProviderBuilder) this;
+            return (AuroraImmutableDataProviderBuilder) this;
         }
 
         @Override
         public <NH extends H> ImmutableDataProviderBuilder<NH, V, E> dataHolder(final Class<NH> holder) {
             this.holder = TypeTokenUtil.requireCompleteGenerics(holder);
-            return (SpongeImmutableDataProviderBuilder) this;
+            return (AuroraImmutableDataProviderBuilder) this;
         }
 
         @Override
@@ -581,7 +581,7 @@ public class DataProviderRegistrator {
         }
     }
 
-    public static class SpongeMutableDataProviderBuilder<H extends DataHolder.Mutable, V extends Value<E>, E, R extends MutableRegistrationBase<H, E, R>> implements MutableDataProviderBuilder<H, V, E> {
+    public static class AuroraMutableDataProviderBuilder<H extends DataHolder.Mutable, V extends Value<E>, E, R extends MutableRegistrationBase<H, E, R>> implements MutableDataProviderBuilder<H, V, E> {
 
         private MutableRegistrationBase<H, E, R> registration;
         private Type holder;
@@ -589,19 +589,19 @@ public class DataProviderRegistrator {
         @Override
         public <NV extends Value<NE>, NE> MutableDataProviderBuilder<H, NV, NE> key(Key<NV> key) {
             this.registration = new MutableRegistrationBase(key);
-            return (SpongeMutableDataProviderBuilder) this;
+            return (AuroraMutableDataProviderBuilder) this;
         }
 
         @Override
         public <NH extends H> MutableDataProviderBuilder<NH, V, E> dataHolder(final TypeToken<NH> holder) {
             this.holder = holder.getType();
-            return (SpongeMutableDataProviderBuilder) this;
+            return (AuroraMutableDataProviderBuilder) this;
         }
 
         @Override
         public <NH extends H> MutableDataProviderBuilder<NH, V, E> dataHolder(final Class<NH> holder) {
             this.holder = TypeTokenUtil.requireCompleteGenerics(holder);
-            return (SpongeMutableDataProviderBuilder) this;
+            return (AuroraMutableDataProviderBuilder) this;
         }
 
         @Override

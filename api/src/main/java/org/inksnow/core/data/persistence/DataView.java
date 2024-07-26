@@ -1,5 +1,6 @@
 package org.inksnow.core.data.persistence;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.inksnow.core.data.DataManager;
 import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.value.Value;
@@ -560,7 +561,7 @@ public interface DataView {
      * @param <V> The value type
      * @return The key, if available
      */
-    <E, V extends Value<E>> Optional<Key<V>> getDataKey(DataQuery path);
+    <E, V extends Value<E>> Optional<Key<@NonNull V>> getDataKey(DataQuery path);
 
     /**
      * Gets the {@link List} of {@link Key values} by path, if available.

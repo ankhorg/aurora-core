@@ -7,7 +7,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.holder.EntityDataHolder;
 import org.inksnow.core.data.persistence.DataContainer;
-import org.inksnow.core.impl.bridge.data.DataContainerHolder;
 
 import java.lang.ref.WeakReference;
 import java.util.List;

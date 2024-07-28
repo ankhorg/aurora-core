@@ -1,5 +1,6 @@
 package org.inksnow.core.data.value;
 
+import org.bukkit.entity.Damageable;
 import org.inksnow.core.Aurora;
 import org.inksnow.core.data.key.Key;
 
@@ -26,7 +27,7 @@ import java.util.function.Supplier;
  * <p>The advantage of this is that now, these various known and unknown
  * {@link Mutable}s can be retrieved by simple java generics:
  * {@link ValueContainer#getValue(Key)}. While having a {@link Mutable} for
- * something so primitive as the current health of a {@link Living} entity,
+ * something so primitive as the current health of a {@link Damageable} entity,
  * the power is wielded when a {@link Mutable} can be offered up to multiple
  * {@link ValueContainer}s without worrying about whether it's supported or not,
  * or getting the right cast information.</p>
@@ -35,8 +36,19 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings("type.arguments.not.inferred")
 public interface Value<E> {
+
+    /**
+     * The {@link Factory} for creating {@link Value}s.
+     */
+    Supplier<Value.Factory> FACTORY = Aurora.getFactoryLazy(Value.Factory.class);
+
+    /**
+     * Gets the {@link Factory} for creating {@link Value}s.
+     *
+     * @return The value factory
+     */
     static Value.Factory factory() {
-        return Aurora.getFactory(Value.Factory.class);
+        return FACTORY.get();
     }
 
     /**

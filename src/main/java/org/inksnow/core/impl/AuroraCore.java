@@ -158,9 +158,8 @@ public class AuroraCore implements AuroraApi, Listener {
         Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraWorldDataService.class), plugin);
         Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraPlayerDataService.class), plugin);
         Bukkit.getScheduler().runTask(plugin, () -> serverBootstrap = true);
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            instance.injector.getInstance(AuroraPlayerDataService.class).flush();
-        }, 0, 20 * 60 * 5);
+        Bukkit.getScheduler().runTaskTimer(plugin, () ->
+                instance.injector.getInstance(AuroraPlayerDataService.class).flush(), 0, 20 * 60 * 5);
 
         // user
         new DataProviderRegistrator()
@@ -229,15 +228,15 @@ public class AuroraCore implements AuroraApi, Listener {
             .require(Keys.HEALTH)
         );
 
-        int messageCounter = Aurora.data()
-            .of(event.getPlayer())
-            .getInt(Keys.PLAYER_MESSAGE_COUNTER)
-            .orElse(0);
-        DataTransactionResult result = Aurora.data()
-            .of(event.getPlayer())
-            .offer(Keys.PLAYER_MESSAGE_COUNTER, messageCounter + 1);
-
-        event.getPlayer().sendMessage(result.toString());
+        for (int i = 0; i < 10000; i++) {
+            int messageCounter = Aurora.data()
+                    .of(event.getPlayer())
+                    .getInt(Keys.PLAYER_MESSAGE_COUNTER)
+                    .orElse(0);
+            DataTransactionResult result = Aurora.data()
+                    .of(event.getPlayer())
+                    .offer(Keys.PLAYER_MESSAGE_COUNTER, messageCounter + 1);
+        }
     }
 
     @EventHandler
@@ -246,10 +245,12 @@ public class AuroraCore implements AuroraApi, Listener {
         if (block == null) {
             return;
         }
+
         int clickCounter = Aurora.data()
             .of(event.getClickedBlock())
             .getInt(Keys.BLOCK_CLICK_COUNTER)
             .orElse(0);
+
         DataTransactionResult result = Aurora.data()
             .of(event.getClickedBlock())
             .offer(Keys.BLOCK_CLICK_COUNTER, clickCounter + 1);

@@ -5,11 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.holder.UserDataHolder;
 import org.inksnow.core.impl.data.provider.nbt.NBTDataType;
 import org.inksnow.core.impl.data.provider.nbt.NBTDataTypes;
 
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +26,11 @@ public class AuroraUserDataHolder extends AuroraNbtFileDataHolder implements Use
         this.playerId = playerId;
     }
 
+    // not necessary, for performance
+    @Override
+    public List<DataHolder.Mutable> impl$mutableDelegateDataHolder() {
+        return Collections.singletonList(this);
+    }
 
     @Override
     public Optional<? extends OfflinePlayer> player() {

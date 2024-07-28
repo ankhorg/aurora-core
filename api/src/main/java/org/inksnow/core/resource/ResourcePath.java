@@ -10,6 +10,7 @@ import org.inksnow.core.util.CopyableBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Represents a path to a resource.
@@ -58,13 +59,16 @@ import java.util.List;
  *  </pre>
  */
 public interface ResourcePath extends Comparable<ResourcePath> {
+
+    Supplier<Factory> FACTORY = Aurora.getFactoryLazy(Factory.class);
+
     /**
      * Returns a factory for creating ResourcePath instances.
      *
      * @return a factory for creating ResourcePath instances
      */
     static Factory factory() {
-        return Aurora.getFactory(Factory.class);
+        return FACTORY.get();
     }
 
     /**
@@ -108,8 +112,8 @@ public interface ResourcePath extends Comparable<ResourcePath> {
      * @param path the path to parse
      * @return a ResourcePath parsed from the specified path
      */
-    static ResourcePath of(@NonEmpty String path) {
-        return factory().of(path);
+    static ResourcePath of(@NonEmpty String path){
+            return factory().of(path);
     }
 
     /**

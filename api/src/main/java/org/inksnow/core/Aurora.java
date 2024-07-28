@@ -1,12 +1,15 @@
 package org.inksnow.core;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataApi;
 import org.inksnow.core.spi.ServiceApi;
 import org.inksnow.core.util.Builder;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The main static entry point of the Aurora API.
@@ -88,4 +91,31 @@ public final class Aurora {
         return api().getFactory(clazz);
     }
 
+    /**
+     * Gets a lazy factory with the specified class.
+     *
+     * @param clazz the factory class
+     * @return the lazy factory
+     * @param <T> the type of the factory
+     */
+    public static <T> Supplier<T> getFactoryLazy(Class<T> clazz) {
+        return new Supplier<T>() {
+            private final AtomicReference<@Nullable T> reference = new AtomicReference<>();
+
+            @Override
+            public T get() {
+                T instance = reference.get();
+                if (instance == null) {
+                    synchronized (this) {
+                        instance = reference.get();
+                        if (instance == null) {
+                            instance = getFactory(clazz);
+                            reference.set(instance);
+                        }
+                    }
+                }
+                return instance;
+            }
+        };
+    }
 }

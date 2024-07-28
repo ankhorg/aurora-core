@@ -32,6 +32,27 @@ import java.util.stream.Stream;
  */
 public interface DataManipulator extends CopyableValueContainer {
 
+    Supplier<Immutable.Factory> IMMUTABLE_FACTORY = Aurora.getFactoryLazy(Immutable.Factory.class);
+    Supplier<Mutable.Factory> MUTABLE_FACTORY = Aurora.getFactoryLazy(Mutable.Factory.class);
+
+    /**
+     * Get the DataManipulator {@link Immutable.Factory} instance.
+     *
+     * @return The DataManipulator immutable factory
+     */
+    static Immutable.Factory immutableFactory() {
+        return IMMUTABLE_FACTORY.get();
+    }
+
+    /**
+     * Get the DataManipulator {@link Mutable.Factory} instance.
+     *
+     * @return The DataManipulator mutable factory
+     */
+    static Mutable.Factory mutableFactory() {
+        return MUTABLE_FACTORY.get();
+    }
+
     /**
      * Creates a {@link Immutable} view directly based on the
      * {@link Value}s. No unnecessary copies of the {@link Value}s
@@ -41,7 +62,7 @@ public interface DataManipulator extends CopyableValueContainer {
      * @return The immutable data manipulator view
      */
     static Immutable immutableOf(final Iterable<? extends Value<?>> values) {
-        return Aurora.getFactory(Immutable.Factory.class).of(values);
+        return immutableFactory().of(values);
     }
 
     /**
@@ -55,7 +76,7 @@ public interface DataManipulator extends CopyableValueContainer {
      * @return The immutable manipulator
      */
     static Immutable immutableOf(final ValueContainer valueContainer) {
-        return Aurora.getFactory(Immutable.Factory.class).of(valueContainer);
+        return immutableFactory().of(valueContainer);
     }
 
     /**
@@ -64,7 +85,7 @@ public interface DataManipulator extends CopyableValueContainer {
      * @return The empty immutable data manipulator
      */
     static Immutable immutableOf() {
-        return Aurora.getFactory(Immutable.Factory.class).of();
+        return immutableFactory().of();
     }
 
     /**
@@ -74,7 +95,7 @@ public interface DataManipulator extends CopyableValueContainer {
      * @return A new empty manipulator
      */
     static Mutable mutableOf() {
-        return Aurora.getFactory(Mutable.Factory.class).of();
+        return mutableFactory().of();
     }
 
     /**
@@ -87,7 +108,7 @@ public interface DataManipulator extends CopyableValueContainer {
      * @return The mutable manipulator containing all values
      */
     static Mutable mutableOf(final Iterable<? extends Value<?>> values) {
-        return Aurora.getFactory(Mutable.Factory.class).of(values);
+        return mutableFactory().of(values);
     }
 
     /**
@@ -101,7 +122,7 @@ public interface DataManipulator extends CopyableValueContainer {
      * @return The mutable manipulator containing all values
      */
     static Mutable mutableOf(final ValueContainer valueContainer) {
-        return Aurora.getFactory(Mutable.Factory.class).of(valueContainer);
+        return mutableFactory().of(valueContainer);
     }
 
     @Override

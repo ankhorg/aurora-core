@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.holder.EntityDataHolder;
-import org.inksnow.core.data.persistence.DataContainer;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Optional;
 public final class AuroraPlayerDataHolder extends AuroraUserDataHolder implements EntityDataHolder {
     private final WeakReference<Player> playerReference;
     private final AuroraEntityDataHolder entityDataHolder;
-    private @Nullable DataContainer dataContainer;
 
     @SneakyThrows
     public AuroraPlayerDataHolder(Player player) {
@@ -26,6 +24,12 @@ public final class AuroraPlayerDataHolder extends AuroraUserDataHolder implement
 
     @Override
     public List<DataHolder> impl$delegateDataHolder() {
+        return ImmutableList.of(this, entityDataHolder);
+    }
+
+    // not necessary, for performance
+    @Override
+    public List<DataHolder.Mutable> impl$mutableDelegateDataHolder() {
         return ImmutableList.of(this, entityDataHolder);
     }
 

@@ -17,6 +17,7 @@ import org.inksnow.core.util.Tuple;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;

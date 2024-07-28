@@ -5,18 +5,18 @@ import org.inksnow.core.data.value.Value;
 import org.inksnow.core.resource.ResourcePath;
 
 public class Keys {
+    public static final Key<Value<String>> NAME = Key.builder()
+            .resourcePath(ResourcePath.of("minecraft:name"))
+            .elementType(String.class)
+            .build();
+
+    public static final Key<Value<String>> CUSTOM_NAME = Key.builder()
+            .resourcePath(ResourcePath.of("minecraft:custom_name"))
+            .elementType(String.class)
+            .build();
+
     public static final Key<Value<Double>> HEALTH = Key.builder()
-            .resourcePath(ResourcePath.of("aurora:entity:health"))
+            .resourcePath(ResourcePath.of("minecraft:health"))
             .elementType(Double.class)
-            .build();
-
-    public static final Key<Value<Integer>> PLAYER_MESSAGE_COUNTER = Key.builder()
-            .resourcePath(ResourcePath.of("aurora:player:message_counter"))
-            .elementType(Integer.class)
-            .build();
-
-    public static final Key<Value<Integer>> BLOCK_CLICK_COUNTER = Key.builder()
-            .resourcePath(ResourcePath.of("aurora:block:click_counter"))
-            .elementType(Integer.class)
             .build();
 }

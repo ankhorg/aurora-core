@@ -11,10 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Damageable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
@@ -32,12 +30,9 @@ import org.inksnow.ankhinvoke.reference.ResourceReferenceSource;
 import org.inksnow.core.Aurora;
 import org.inksnow.core.AuroraApi;
 import org.inksnow.core.data.DataTransactionResult;
-import org.inksnow.core.data.holder.BlockDataHolder;
-import org.inksnow.core.data.holder.EntityDataHolder;
-import org.inksnow.core.data.holder.UserDataHolder;
-import org.inksnow.core.data.persistence.DataQuery;
 import org.inksnow.core.impl.data.AuroraData;
 import org.inksnow.core.impl.data.provider.DataProviderRegistrator;
+import org.inksnow.core.impl.data.registration.EntityRegistration;
 import org.inksnow.core.impl.data.store.player.AuroraPlayerDataService;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
 import org.inksnow.core.util.Builder;
@@ -50,6 +45,9 @@ import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
 public class AuroraCore implements AuroraApi, Listener {
+
+    public static final int FLUSH_PLAYER_DATA_INTERVAL = 20 * 60 * 5;
+
     public static final Consumer<String> printer = Bukkit.getConsoleSender()::sendMessage;
     /* package-private */ static @MonotonicNonNull JavaPlugin plugin;
     private static @MonotonicNonNull AuroraCore instance;
@@ -158,38 +156,12 @@ public class AuroraCore implements AuroraApi, Listener {
         Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraWorldDataService.class), plugin);
         Bukkit.getPluginManager().registerEvents(instance.injector.getInstance(AuroraPlayerDataService.class), plugin);
         Bukkit.getScheduler().runTask(plugin, () -> serverBootstrap = true);
-        Bukkit.getScheduler().runTaskTimer(plugin, () ->
-                instance.injector.getInstance(AuroraPlayerDataService.class).flush(), 0, 20 * 60 * 5);
+        Bukkit.getScheduler().runTaskTimer(plugin,
+                () -> instance.injector.getInstance(AuroraPlayerDataService.class).flush(),
+                FLUSH_PLAYER_DATA_INTERVAL, FLUSH_PLAYER_DATA_INTERVAL
+        );
 
-        // user
-        new DataProviderRegistrator()
-                .newDataStore(UserDataHolder.class)
-                .dataStore(Keys.PLAYER_MESSAGE_COUNTER,
-                        (dv, v) -> dv.set(DataQuery.of("player_message_counter"), v),
-                        dv -> dv.getInt(DataQuery.of("player_message_counter"))
-                ).buildAndRegister();
-
-        // block
-        new DataProviderRegistrator()
-                .newDataStore(BlockDataHolder.class)
-                .dataStore(Keys.BLOCK_CLICK_COUNTER,
-                        (dv, v) -> dv.set(DataQuery.of("block_click_counter"), v),
-                        dv -> dv.getInt(DataQuery.of("block_click_counter"))
-                ).buildAndRegister();
-
-        // entity
-        DataProviderRegistrator registrator = new DataProviderRegistrator();
-        registrator.asMutable(EntityDataHolder.class)
-                /**/.create(Keys.HEALTH)
-                /**//**/.get(h -> h.entity() instanceof Damageable ? ((Damageable) h.entity()).getHealth() : null)
-                /**//**/.set((h, v) -> {
-                    if (h.entity() instanceof Damageable) {
-                        ((Damageable) h.entity()).setHealth(v);
-                    }
-                });
-
-        // registrator.auroraDataStore(ResourcePath.of("aurora:player"), UserDataHolder.class, Keys.NAME);
-        registrator.buildAndRegister();
+        new EntityRegistration().register(new DataProviderRegistrator());
 
         printer.accept("§8+-----------------------------------------------------");
         for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {
@@ -219,43 +191,6 @@ public class AuroraCore implements AuroraApi, Listener {
     @SuppressWarnings("unused") // used by reflect in module plugin
     public static @Nullable List<String> onTabComplete(JavaPlugin plugin, CommandSender sender, Command command, String alias, String[] args) {
         return null;
-    }
-
-    @EventHandler
-    public void onChat(PlayerChatEvent event) {
-        event.getPlayer().sendMessage("your health: " + Aurora.data()
-            .of(event.getPlayer())
-            .require(Keys.HEALTH)
-        );
-
-        for (int i = 0; i < 10000; i++) {
-            int messageCounter = Aurora.data()
-                    .of(event.getPlayer())
-                    .getInt(Keys.PLAYER_MESSAGE_COUNTER)
-                    .orElse(0);
-            DataTransactionResult result = Aurora.data()
-                    .of(event.getPlayer())
-                    .offer(Keys.PLAYER_MESSAGE_COUNTER, messageCounter + 1);
-        }
-    }
-
-    @EventHandler
-    public void onClick(PlayerInteractEvent event) {
-        Block block = event.getClickedBlock();
-        if (block == null) {
-            return;
-        }
-
-        int clickCounter = Aurora.data()
-            .of(event.getClickedBlock())
-            .getInt(Keys.BLOCK_CLICK_COUNTER)
-            .orElse(0);
-
-        DataTransactionResult result = Aurora.data()
-            .of(event.getClickedBlock())
-            .offer(Keys.BLOCK_CLICK_COUNTER, clickCounter + 1);
-
-        event.getPlayer().sendMessage(result.toString());
     }
 
     @EventHandler

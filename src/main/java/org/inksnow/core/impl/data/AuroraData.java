@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataApi;
 import org.inksnow.core.data.DataManager;
+import org.inksnow.core.data.holder.BlockDataHolder;
 import org.inksnow.core.data.holder.EntityDataHolder;
 import org.inksnow.core.impl.data.holder.AuroraBlockDataHolder;
 import org.inksnow.core.impl.data.holder.AuroraChunkDataHolder;
@@ -55,11 +57,11 @@ public class AuroraData implements DataApi {
     }
 
     @Override
-    public AuroraBlockDataHolder of(Block block) {
+    public BlockDataHolder of(Location location) {
         return new AuroraBlockDataHolder(
                 worldDataService,
-                block.getChunk(),
-                PosUtil.location_blockId(block.getLocation())
+                location.getChunk(),
+                PosUtil.location_blockId(location)
         );
     }
 

@@ -3,6 +3,7 @@ package org.inksnow.core.impl.data.holder;
 import org.bukkit.Chunk;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataHolder;
+import org.inksnow.core.data.holder.BlockDataHolder;
 import org.inksnow.core.data.holder.ChunkDataHolder;
 import org.inksnow.core.data.persistence.DataContainer;
 import org.inksnow.core.impl.data.holder.bridge.DataCompoundHolder;
@@ -11,6 +12,8 @@ import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
 import org.inksnow.core.impl.data.provider.nbt.NBTDataType;
 import org.inksnow.core.impl.data.provider.nbt.NBTDataTypes;
 import org.inksnow.core.impl.ref.nbt.RefNbtTagCompound;
+import org.inksnow.core.impl.util.PosUtil;
+import org.inksnow.core.position.BlockPosition;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -58,5 +61,21 @@ public final class AuroraChunkDataHolder implements ChunkDataHolder, DataCompoun
     @Override
     public DataContainer getDataContainer() {
         return chunkData().getChunkData();
+    }
+
+    @Override
+    public BlockDataHolder block(BlockPosition position) {
+        @Nullable Chunk chunk = chunkReference.get();
+        if (chunk == null) {
+            throw new IllegalStateException("Chunk is no longer available");
+        }
+        if (!PosUtil.isInChunk(position.x(), position.z(), chunk.getX(), chunk.getZ())) {
+            throw new IllegalArgumentException("Block position is not in this chunk");
+        }
+        return new AuroraBlockDataHolder(
+                worldDataService,
+                chunk,
+                PosUtil.locationXYZ_blockId(position.x(), position.y(), position.z())
+        );
     }
 }

@@ -3,6 +3,7 @@ package org.inksnow.core.impl.util;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.inksnow.core.position.BlockPosition;
 
 @UtilityClass
 public class PosUtil {
@@ -16,7 +17,7 @@ public class PosUtil {
      * @return the block ID
      */
     public static int locationXYZ_blockId(int x, int y, int z) {
-        return ((y) << 8) | ((z & 0b1111) << 4) | (x & 0b1111);
+        return (y << 8) | ((z & 0b1111) << 4) | (x & 0b1111);
     }
 
     /**
@@ -35,7 +36,7 @@ public class PosUtil {
      * @param blockId the block ID
      * @return the X coordinate of the block
      */
-    public static int locationXYZ_blockX(int blockId) {
+    public static int blockId_blockX(int blockId) {
         return blockId & 0b1111;
     }
 
@@ -45,7 +46,7 @@ public class PosUtil {
      * @param blockId the block ID
      * @return the Y coordinate of the block
      */
-    public static int locationXYZ_blockY(int blockId) {
+    public static int blockId_blockY(int blockId) {
         return blockId >> 8;
     }
 
@@ -55,7 +56,7 @@ public class PosUtil {
      * @param blockId the block ID
      * @return the Z coordinate of the block
      */
-    public static int locationXYZ_blockZ(int blockId) {
+    public static int blockId_blockZ(int blockId) {
         return (blockId >> 4) & 0b1111;
     }
 
@@ -165,5 +166,10 @@ public class PosUtil {
      */
     public static int regionId_regionZ(long regionId) {
         return (int) (regionId >> 32);
+    }
+
+    public static boolean isInChunk(int x, int z, int chunkX, int chunkZ) {
+        return x >= chunkX << 4 && x < (chunkX + 1) << 4
+                && z >= chunkZ << 4 && z < (chunkZ + 1) << 4;
     }
 }

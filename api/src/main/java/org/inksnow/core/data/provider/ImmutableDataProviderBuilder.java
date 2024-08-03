@@ -1,8 +1,8 @@
-package org.inksnow.core.data;
+package org.inksnow.core.data.provider;
 
 import io.leangen.geantyref.TypeToken;
+import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.key.Key;
-import org.inksnow.core.data.provider.DataProvider;
 import org.inksnow.core.data.value.Value;
 import org.inksnow.core.util.Builder;
 

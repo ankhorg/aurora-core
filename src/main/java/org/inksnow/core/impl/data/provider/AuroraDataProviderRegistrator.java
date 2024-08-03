@@ -2,12 +2,14 @@ package org.inksnow.core.impl.data.provider;
 
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
+import jakarta.inject.Singleton;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.DataManipulator;
 import org.inksnow.core.data.DataRegistration;
 import org.inksnow.core.data.DataTransactionResult;
-import org.inksnow.core.data.ImmutableDataProviderBuilder;
+import org.inksnow.core.data.provider.DataProviderRegistrator;
+import org.inksnow.core.data.provider.ImmutableDataProviderBuilder;
 import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.persistence.DataContainer;
 import org.inksnow.core.data.persistence.DataContainerHolder;
@@ -17,7 +19,6 @@ import org.inksnow.core.data.provider.DataProvider;
 import org.inksnow.core.data.provider.MutableDataProviderBuilder;
 import org.inksnow.core.data.value.Value;
 import org.inksnow.core.impl.data.AuroraDataManager;
-import org.inksnow.core.impl.data.AuroraDataRegistration;
 import org.inksnow.core.impl.data.AuroraDataRegistrationBuilder;
 import org.inksnow.core.impl.data.persistence.datastore.AuroraDataStoreBuilder;
 import org.inksnow.core.impl.util.CopyHelper;
@@ -33,24 +34,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class DataProviderRegistrator {
+public class AuroraDataProviderRegistrator implements DataProviderRegistrator {
     private static final Class<DataContainerHolder.Mutable> MUTABLE = DataContainerHolder.Mutable.class;
     private static final Class<DataContainerHolder.Immutable> IMMUTABLE = DataContainerHolder.Immutable.class;
 
     AuroraDataRegistrationBuilder registrationBuilder;
     AuroraDataStoreBuilder dataStoreBuilder;
 
-    public DataProviderRegistrator() {
+    public AuroraDataProviderRegistrator() {
         this.registrationBuilder = (AuroraDataRegistrationBuilder) DataRegistration.builder();
         this.dataStoreBuilder = (AuroraDataStoreBuilder) DataStore.builder().vanillaData();
     }
 
-    public DataProviderRegistrator(final AuroraDataRegistrationBuilder registrationBuilder) {
+    public AuroraDataProviderRegistrator(final AuroraDataRegistrationBuilder registrationBuilder) {
         this.registrationBuilder = registrationBuilder;
     }
 
     @SafeVarargs
-    public final DataProviderRegistrator newDataStore(Class<? extends DataHolder>... dataHolders) {
+    @Override
+    public final AuroraDataProviderRegistrator newDataStore(Class<? extends DataHolder>... dataHolders) {
         if (!this.dataStoreBuilder.isEmpty()) {
             this.registrationBuilder.store(this.dataStoreBuilder.build());
         }
@@ -60,7 +62,8 @@ public class DataProviderRegistrator {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void auroraDataStore(final ResourcePath datastoreKey, final Class dataHolder, final Key<? extends Value<?>>... dataKeys) {
+    @Override
+    public void pluginDataStore(final ResourcePath datastoreKey, final Class dataHolder, final Key<? extends Value<?>>... dataKeys) {
         final AuroraDataStoreBuilder builder = ((AuroraDataStoreBuilder) DataStore.builder()).pluginData(datastoreKey);
         builder.holder(dataHolder);
         for (Key dataKey : dataKeys) {
@@ -69,7 +72,8 @@ public class DataProviderRegistrator {
         AuroraDataManager.getDatastoreRegistry().register(builder.build(), Arrays.asList(dataKeys));
     }
 
-    public <K, V extends Value<K>> DataProviderRegistrator dataStore(
+    @Override
+    public <K, V extends Value<K>> AuroraDataProviderRegistrator dataStore(
         final Key<V> key,
         final BiConsumer<DataView, K> serializer,
         final Function<DataView, Optional<K>> deserializer
@@ -79,9 +83,10 @@ public class DataProviderRegistrator {
         return this;
     }
 
+    @Override
     public <H extends DataHolder, K, V extends Value<K>> void registerDataStoreDelegatingProvider(final Key<V> key, final Type typeToken) {
         // Create dataprovider for mutable and immutable DataContainerHolders
-        if (GenericTypeReflector.isSuperType(DataProviderRegistrator.MUTABLE, typeToken)) {
+        if (GenericTypeReflector.isSuperType(AuroraDataProviderRegistrator.MUTABLE, typeToken)) {
             this.asMutable(GenericTypeReflector.erase(typeToken))
                     .create(key)
                     .get(holder -> {
@@ -101,7 +106,7 @@ public class DataProviderRegistrator {
                                 .serialize(manipulator, dataContainer);
                         ((DataContainerHolder.Mutable) holder).setDataContainer(dataContainer);
                     });
-        } else if (GenericTypeReflector.isSuperType(DataProviderRegistrator.IMMUTABLE, typeToken)) {
+        } else if (GenericTypeReflector.isSuperType(AuroraDataProviderRegistrator.IMMUTABLE, typeToken)) {
             this.asImmutable((Class<? super H>) GenericTypeReflector.erase(typeToken))
                     .create(key)
                     .get(holder -> {
@@ -122,6 +127,7 @@ public class DataProviderRegistrator {
      * Creates a new {@link MutableRegistrator}
      * @return The registrator
      */
+    @Override
     public <T> MutableRegistrator<T> asMutable(final Class<T> target) {
         return new MutableRegistrator<>(this.registrationBuilder, target);
     }
@@ -130,10 +136,12 @@ public class DataProviderRegistrator {
      * Creates a new {@link ImmutableRegistrator}
      * @return The registrator
      */
+    @Override
     public <T> ImmutableRegistrator<T> asImmutable(final Class<T> target) {
         return new ImmutableRegistrator<>(this.registrationBuilder, target);
     }
 
+    @Override
     public void buildAndRegister() {
         if (!this.dataStoreBuilder.isEmpty()) {
             this.registrationBuilder.store(this.dataStoreBuilder.build());
@@ -142,7 +150,7 @@ public class DataProviderRegistrator {
     }
 
 
-    public static final class MutableRegistrator<T> extends DataProviderRegistrator {
+    public static final class MutableRegistrator<T> extends AuroraDataProviderRegistrator implements DataProviderRegistrator.Mutable<T> {
 
         private final Class<T> target;
 
@@ -152,36 +160,38 @@ public class DataProviderRegistrator {
         }
 
         /**
-         * Creates a new {@link ImmutableRegistration} and registers it
+         * Creates a new {@link ImmutableRegistrationImpl} and registers it
          * @param suppliedKey The key supplier
          * @param <K> The key type
          * @return The registration
          */
-        public <K> MutableRegistration<T, K> create(final Supplier<? extends Key<? extends Value<K>>> suppliedKey) {
+        @Override
+        public <K> MutableRegistrationImpl<T, K> create(final Supplier<? extends Key<? extends Value<K>>> suppliedKey) {
             return this.create(suppliedKey.get());
         }
 
         /**
-         * Creates a new {@link ImmutableRegistration} and registers it
+         * Creates a new {@link ImmutableRegistrationImpl} and registers it
          * @param key The key
          * @param <K> The key type
          * @return The registration
          */
-        public <K> MutableRegistration<T, K> create(final Key<? extends Value<K>> key) {
-            final MutableRegistration<T, K> registration = new MutableRegistration<>(this, key);
+        @Override
+        public <K> MutableRegistrationImpl<T, K> create(final Key<? extends Value<K>> key) {
+            final MutableRegistrationImpl<T, K> registration = new MutableRegistrationImpl<>(this, key);
             this.register(registration);
             return registration;
         }
 
         @SuppressWarnings({"unchecked", "UnstableApiUsage"})
-        protected <K, V extends Value<K>> MutableRegistrator<T> register(final MutableRegistration<T, K> registration) {
+        protected <K, V extends Value<K>> MutableRegistrator<T> register(final MutableRegistrationImpl<T, K> registration) {
             final DataProvider<?, ?> provider = registration.build(this.target);
             this.registrationBuilder.dataKey(provider.key()).provider(provider);
             return this;
         }
     }
 
-    public static final class ImmutableRegistrator<T> extends DataProviderRegistrator {
+    public static final class ImmutableRegistrator<T> extends AuroraDataProviderRegistrator implements DataProviderRegistrator.Immutable<T> {
 
         private final Class<T> target;
 
@@ -191,29 +201,31 @@ public class DataProviderRegistrator {
         }
 
         /**
-         * Creates a new {@link ImmutableRegistration} and registers it
+         * Creates a new {@link ImmutableRegistrationImpl} and registers it
          * @param suppliedKey The key supplier
          * @param <K> The key type
          * @return The registration
          */
-        public <K> ImmutableRegistration<T, K> create(final Supplier<? extends Key<? extends Value<K>>> suppliedKey) {
+        @Override
+        public <K> ImmutableRegistrationImpl<T, K> create(final Supplier<? extends Key<? extends Value<K>>> suppliedKey) {
             return this.create(suppliedKey.get());
         }
 
         /**
-         * Creates a new {@link ImmutableRegistration} and registers it
+         * Creates a new {@link ImmutableRegistrationImpl} and registers it
          * @param key The key
          * @param <K> The key type
          * @return The registration
          */
-        public <K> ImmutableRegistration<T, K> create(final Key<? extends Value<K>> key) {
-            final ImmutableRegistration<T, K> registration = new ImmutableRegistration<>(this, key);
+        @Override
+        public <K> ImmutableRegistrationImpl<T, K> create(final Key<? extends Value<K>> key) {
+            final ImmutableRegistrationImpl<T, K> registration = new ImmutableRegistrationImpl<>(this, key);
             this.register(registration);
             return registration;
         }
 
         @SuppressWarnings({"unchecked", "UnstableApiUsage"})
-        protected <K, V> ImmutableRegistrator<T> register(final ImmutableRegistration<T, K> registration) {
+        protected <K, V> ImmutableRegistrator<T> register(final ImmutableRegistrationImpl<T, K> registration) {
             final DataProvider<?, ?> provider = registration.build(this.target);
             this.registrationBuilder.dataKey(provider.key()).provider(provider);
             return this;
@@ -381,11 +393,13 @@ public class DataProviderRegistrator {
 
     }
 
-    public static final class MutableRegistration<H, E> extends MutableRegistrationBase<H, E, MutableRegistration<H, E>> {
+    public static final class MutableRegistrationImpl<H, E>
+            extends MutableRegistrationBase<H, E, MutableRegistrationImpl<H, E>>
+            implements MutableRegistration<H, E, MutableRegistrationImpl<H, E>> {
 
         private final MutableRegistrator<H> registrator;
 
-        private MutableRegistration(final MutableRegistrator<H> registrator, final Key<? extends Value<E>> key) {
+        private MutableRegistrationImpl(final MutableRegistrator<H> registrator, final Key<? extends Value<E>> key) {
             super(key);
             this.registrator = registrator;
         }
@@ -394,8 +408,9 @@ public class DataProviderRegistrator {
             return this.create(suppliedKey.get());
         } */
 
-        public <NE> MutableRegistration<H, NE> create(final Key<? extends Value<NE>> key) {
-            final MutableRegistration<H, NE> registration = new MutableRegistration<>(this.registrator, key);
+        @Override
+        public <NE> MutableRegistrationImpl<H, NE> create(final Key<? extends Value<NE>> key) {
+            final MutableRegistrationImpl<H, NE> registration = new MutableRegistrationImpl<>(this.registrator, key);
             this.registrator.register(registration);
             return registration;
         }
@@ -404,6 +419,7 @@ public class DataProviderRegistrator {
          * Creates a new {@link MutableRegistrator}
          * @return The registrator
          */
+        @Override
         public <NT> MutableRegistrator<NT> asMutable(final Class<NT> target) {
             return new MutableRegistrator<>(this.registrator.registrationBuilder, target);
         }
@@ -412,6 +428,7 @@ public class DataProviderRegistrator {
          * Creates a new {@link ImmutableRegistrator}
          * @return The registrator
          */
+        @Override
         public <NT> ImmutableRegistrator<NT> asImmutable(final Class<NT> target) {
             return new ImmutableRegistrator<>(this.registrator.registrationBuilder, target);
         }
@@ -491,14 +508,15 @@ public class DataProviderRegistrator {
             };
 
         }
-
     }
 
-    public static final class ImmutableRegistration<H, E> extends ImmutableRegistrationBase<H, E, ImmutableRegistration<H, E>> {
+    public static final class ImmutableRegistrationImpl<H, E>
+            extends ImmutableRegistrationBase<H, E, ImmutableRegistrationImpl<H, E>>
+            implements ImmutableRegistration<H, E, ImmutableRegistrationImpl<H, E>> {
 
         private final ImmutableRegistrator<H> registrator;
 
-        private ImmutableRegistration(final ImmutableRegistrator<H> registrator, final Key<? extends Value<E>> key) {
+        private ImmutableRegistrationImpl(final ImmutableRegistrator<H> registrator, final Key<? extends Value<E>> key) {
             super(key);
             this.registrator = registrator;
         }
@@ -507,8 +525,9 @@ public class DataProviderRegistrator {
             return this.create(suppliedKey.get());
         } */
 
-        public <NE> ImmutableRegistration<H, NE> create(final Key<? extends Value<NE>> key) {
-            final ImmutableRegistration<H, NE> registration = new ImmutableRegistration<>(this.registrator, key);
+        @Override
+        public <NE> ImmutableRegistrationImpl<H, NE> create(final Key<? extends Value<NE>> key) {
+            final ImmutableRegistrationImpl<H, NE> registration = new ImmutableRegistrationImpl<>(this.registrator, key);
             this.registrator.register(registration);
             return registration;
         }
@@ -517,6 +536,7 @@ public class DataProviderRegistrator {
          * Creates a new {@link MutableRegistrator}
          * @return The registrator
          */
+        @Override
         public <NT> MutableRegistrator<NT> asMutable(final Class<NT> target) {
             return new MutableRegistrator<>(this.registrator.registrationBuilder, target);
         }
@@ -525,6 +545,7 @@ public class DataProviderRegistrator {
          * Creates a new {@link ImmutableRegistrator}
          * @return The registrator
          */
+        @Override
         public <NT> ImmutableRegistrator<NT> asImmutable(final Class<NT> target) {
             return new ImmutableRegistrator<>(this.registrator.registrationBuilder, target);
         }
@@ -675,6 +696,14 @@ public class DataProviderRegistrator {
         @Override
         public DataProvider<V, E> build() {
             return this.registration.build((Class) GenericTypeReflector.erase(this.holder));
+        }
+    }
+
+    @Singleton
+    public static class Factory implements DataProviderRegistrator.Factory {
+        @Override
+        public DataProviderRegistrator create() {
+            return new AuroraDataProviderRegistrator();
         }
     }
 }

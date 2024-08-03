@@ -27,9 +27,9 @@ import org.inksnow.ankhinvoke.classpool.ResourcePoolLoader;
 import org.inksnow.ankhinvoke.reference.ResourceReferenceSource;
 import org.inksnow.core.Aurora;
 import org.inksnow.core.AuroraApi;
-import org.inksnow.core.data.DataRegistration;
+import org.inksnow.core.data.provider.DataProviderRegistrator;
 import org.inksnow.core.impl.data.AuroraData;
-import org.inksnow.core.impl.data.provider.DataProviderRegistrator;
+import org.inksnow.core.impl.data.provider.AuroraDataProviderRegistrator;
 import org.inksnow.core.impl.data.registration.EntityRegistration;
 import org.inksnow.core.impl.data.store.player.AuroraPlayerDataService;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
@@ -159,7 +159,7 @@ public class AuroraCore implements AuroraApi, Listener {
                 FLUSH_PLAYER_DATA_INTERVAL, FLUSH_PLAYER_DATA_INTERVAL
         );
 
-        new EntityRegistration().register(new DataProviderRegistrator());
+        new EntityRegistration().register(new AuroraDataProviderRegistrator());
 
         printer.accept("§8+-----------------------------------------------------");
         for (Plugin scanPlugin : Bukkit.getPluginManager().getPlugins()) {

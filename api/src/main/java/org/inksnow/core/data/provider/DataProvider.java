@@ -2,6 +2,7 @@ package org.inksnow.core.data.provider;
 
 import io.leangen.geantyref.TypeToken;
 import org.bukkit.Bukkit;
+import org.inksnow.core.Aurora;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.DataTransactionResult;
 import org.inksnow.core.data.key.Key;
@@ -12,6 +13,25 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 public interface DataProvider<V extends Value<E>, E> {
+
+    /**
+     * Constructs a new {@link MutableDataProviderBuilder}.
+     *
+     * @return The builder
+     */
+    static <H extends DataHolder.Mutable, V extends Value<E>, E> MutableDataProviderBuilder<H, V, E> mutableBuilder() {
+        return Aurora.createBuilder(MutableDataProviderBuilder.class);
+    }
+
+    /**
+     * Constructs a new {@link ImmutableDataProviderBuilder}.
+     *
+     * @return The builder
+     */
+    static <H extends DataHolder, V extends Value<E>, E> ImmutableDataProviderBuilder<H, V, E> immutableBuilder() {
+        return Aurora.createBuilder(ImmutableDataProviderBuilder.class);
+    }
+
     /**
      * Gets the {@link Key} this provider supports.
      *

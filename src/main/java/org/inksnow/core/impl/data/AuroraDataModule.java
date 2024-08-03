@@ -7,11 +7,15 @@ import org.inksnow.core.data.DataManipulator;
 import org.inksnow.core.data.DataRegistration;
 import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.persistence.DataStore;
+import org.inksnow.core.data.provider.DataProviderRegistrator;
+import org.inksnow.core.data.provider.ImmutableDataProviderBuilder;
+import org.inksnow.core.data.provider.MutableDataProviderBuilder;
 import org.inksnow.core.data.value.Value;
 import org.inksnow.core.impl.data.key.AuroraKeyBuilder;
 import org.inksnow.core.impl.data.manipulator.ImmutableDataManipulatorFactory;
 import org.inksnow.core.impl.data.manipulator.MutableDataManipulatorFactory;
 import org.inksnow.core.impl.data.persistence.datastore.AuroraDataStoreBuilder;
+import org.inksnow.core.impl.data.provider.AuroraDataProviderRegistrator;
 import org.inksnow.core.impl.data.provider.DataProviderRegistry;
 import org.inksnow.core.impl.data.store.AuroraDataStoreRegistry;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
@@ -34,6 +38,10 @@ public class AuroraDataModule extends AbstractModule {
         // provider
         bind(DataProviderRegistry.class);
         bind(AuroraWorldDataService.class);
+        bind(DataProviderRegistrator.class).to(AuroraDataProviderRegistrator.class);
+        bind(DataProviderRegistrator.Factory.class).to(AuroraDataProviderRegistrator.Factory.class);
+        bind(ImmutableDataProviderBuilder.class).to(AuroraDataProviderRegistrator.AuroraImmutableDataProviderBuilder.class);
+        bind(MutableDataProviderBuilder.class).to(AuroraDataProviderRegistrator.AuroraMutableDataProviderBuilder.class);
 
         // manipulator
         bind(DataManipulator.Immutable.Factory.class).to(ImmutableDataManipulatorFactory.class);

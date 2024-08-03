@@ -3,10 +3,10 @@ package org.inksnow.core.impl.data.registration;
 import org.bukkit.entity.Damageable;
 import org.inksnow.core.data.holder.EntityDataHolder;
 import org.inksnow.core.impl.Keys;
-import org.inksnow.core.impl.data.provider.DataProviderRegistrator;
+import org.inksnow.core.impl.data.provider.AuroraDataProviderRegistrator;
 
 public class EntityRegistration {
-    public void register(DataProviderRegistrator registrator) {
+    public void register(AuroraDataProviderRegistrator registrator) {
         registrator.asMutable(EntityDataHolder.class)
                 .create(Keys.HEALTH)
                 .get(h -> h.entity() instanceof Damageable ? ((Damageable) h.entity()).getHealth() : null)

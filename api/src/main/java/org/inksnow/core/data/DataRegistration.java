@@ -20,10 +20,10 @@ import java.util.Optional;
  * persisted, and/or associated with {@link DataHolder DataHolders}. A
  * registration identifies the given {@link #keys() Keys} are provided by an
  * implementation for specific {@link DataHolder DataHolders} that may support
- * and not support those {@link Key keys}. All API provided {@link Key keys}
- * exposed through the {@link Keys} class will have an associated registration
- * by the implementation of the API, whether they are usable through
- * {@link DataProvider DataProviders} or {@link DataStore DataStores}.
+ * and not support those {@link Key keys}. All API provided {@link Key keys} will
+ * have an associated registration by the implementation of the API, whether they
+ * are usable through {@link DataProvider DataProviders} or
+ * {@link DataStore DataStores}.
  *
  * <p>If dynamic or persistent retention of the {@link Value Values} by
  * {@link Key keys} is not desired, a registration is optional. This would mean
@@ -220,5 +220,7 @@ public interface DataRegistration {
          */
         @Override
         DataRegistration build();
+
+        void buildAndRegister();
     }
 }

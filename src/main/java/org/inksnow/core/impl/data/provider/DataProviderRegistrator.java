@@ -138,7 +138,7 @@ public class DataProviderRegistrator {
         if (!this.dataStoreBuilder.isEmpty()) {
             this.registrationBuilder.store(this.dataStoreBuilder.build());
         }
-        AuroraDataManager.INSTANCE.registerDataRegistration((AuroraDataRegistration) this.registrationBuilder.build());
+        AuroraDataManager.INSTANCE.registerDataRegistration(this.registrationBuilder.build());
     }
 
 

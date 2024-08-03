@@ -7,6 +7,7 @@ import org.inksnow.core.data.persistence.DataSerializable;
 import org.inksnow.core.data.persistence.DataStore;
 import org.inksnow.core.data.persistence.DataTranslator;
 import org.inksnow.core.data.persistence.DataView;
+import org.inksnow.core.data.store.DataStoreRegistry;
 import org.inksnow.core.resource.ResourcePath;
 
 import java.util.Optional;
@@ -20,6 +21,13 @@ import java.util.Optional;
  * but also powers a majority of the Data API.</p>
  */
 public interface DataManager {
+
+    /**
+     * Gets the {@link DataStoreRegistry} for this manager.
+     *
+     * @return The data store registry
+     */
+    DataStoreRegistry dataStoreRegistry();
 
     /**
      * Registers a {@link DataBuilder} that will dynamically build

@@ -13,7 +13,7 @@ import org.inksnow.core.impl.data.manipulator.ImmutableDataManipulatorFactory;
 import org.inksnow.core.impl.data.manipulator.MutableDataManipulatorFactory;
 import org.inksnow.core.impl.data.persistence.datastore.AuroraDataStoreBuilder;
 import org.inksnow.core.impl.data.provider.DataProviderRegistry;
-import org.inksnow.core.impl.data.store.DataStoreRegistry;
+import org.inksnow.core.impl.data.store.AuroraDataStoreRegistry;
 import org.inksnow.core.impl.data.store.world.AuroraWorldDataService;
 import org.inksnow.core.impl.data.value.AuroraValueFactory;
 
@@ -22,7 +22,7 @@ public class AuroraDataModule extends AbstractModule {
     protected void configure() {
         bind(DataApi.class).to(AuroraData.class);
 
-        bind(DataStoreRegistry.class);
+        bind(AuroraDataStoreRegistry.class);
         bind(DataManager.class).to(AuroraDataManager.class);
 
         // key

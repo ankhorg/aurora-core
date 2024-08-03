@@ -16,6 +16,8 @@ import org.inksnow.core.nbt.CompoundTag;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -36,10 +38,14 @@ public abstract class AuroraNbtFileDataHolder implements DataCompoundHolder, Dat
 
     private RefNbtTagCompound loadImpl() throws IOException {
         if (Files.exists(persistentDataPath)) {
-            if (CraftBukkitVersion.v1_20_R1.isSupport()) {
+            if (CraftBukkitVersion.v1_20_R2.isSupport()) {
                 return RefNbtIo.readCompressed1(persistentDataPath, new RefNbtAccounter(104857600L, 512));
-            } else {
+            } else if (CraftBukkitVersion.v1_16_R2.isSupport()) {
                 return RefNbtIo.readCompressed0(persistentDataPath.toFile());
+            } else {
+                try (InputStream in = Files.newInputStream(persistentDataPath)) {
+                    return RefNbtIo.readCompressed(in);
+                }
             }
         } else {
             return new RefNbtTagCompound();
@@ -65,10 +71,14 @@ public abstract class AuroraNbtFileDataHolder implements DataCompoundHolder, Dat
         logger.debug("Flushing nbt file data: {}", persistentDataPath);
         Files.createDirectories(persistentDataPath.getParent());
 
-        if (CraftBukkitVersion.v1_20_R1.isSupport()) {
+        if (CraftBukkitVersion.v1_20_R2.isSupport()) {
             RefNbtIo.writeCompressed1(serialize(), persistentDataPath);
-        } else {
+        } else if (CraftBukkitVersion.v1_20_R2.isSupport()) {
             RefNbtIo.writeCompressed0(serialize(), persistentDataPath.toFile());
+        } else {
+            try (OutputStream out = Files.newOutputStream(persistentDataPath)) {
+                RefNbtIo.writeCompressed(serialize(), out);
+            }
         }
     }
 

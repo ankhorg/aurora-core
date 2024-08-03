@@ -3,6 +3,7 @@ package org.inksnow.core.impl.data;
 import com.google.common.collect.MapMaker;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.DataManager;
@@ -19,7 +20,7 @@ import org.inksnow.core.data.provider.DataProvider;
 import org.inksnow.core.data.value.Value;
 import org.inksnow.core.impl.data.key.KeyBasedDataListener;
 import org.inksnow.core.impl.data.provider.DataProviderRegistry;
-import org.inksnow.core.impl.data.store.DataStoreRegistry;
+import org.inksnow.core.impl.data.store.AuroraDataStoreRegistry;
 import org.inksnow.core.resource.ResourcePath;
 
 import java.lang.reflect.Type;
@@ -39,7 +40,8 @@ public class AuroraDataManager implements DataManager {
 
     public static AuroraDataManager INSTANCE;
 
-    private final DataStoreRegistry dataStoreRegistry;
+    @Getter
+    private final AuroraDataStoreRegistry dataStoreRegistry;
     private final DataProviderRegistry dataProviderRegistry;
 
     private final Map<Class<?>, DataBuilder<?>> builders;
@@ -48,7 +50,7 @@ public class AuroraDataManager implements DataManager {
     private final List<KeyBasedDataListener<?>> keyListeners;
 
     @Inject
-    private AuroraDataManager(DataStoreRegistry dataStoreRegistry, DataProviderRegistry dataProviderRegistry) {
+    private AuroraDataManager(AuroraDataStoreRegistry dataStoreRegistry, DataProviderRegistry dataProviderRegistry) {
         AuroraDataManager.INSTANCE = this;
 
         this.dataStoreRegistry = dataStoreRegistry;
@@ -218,7 +220,7 @@ public class AuroraDataManager implements DataManager {
 
     } */
 
-    public static DataStoreRegistry getDatastoreRegistry() {
+    public static AuroraDataStoreRegistry getDatastoreRegistry() {
         return AuroraDataManager.INSTANCE.dataStoreRegistry;
     }
 

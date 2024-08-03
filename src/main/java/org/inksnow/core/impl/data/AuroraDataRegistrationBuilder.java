@@ -56,8 +56,13 @@ public class AuroraDataRegistrationBuilder implements DataRegistration.Builder {
     }
 
     @Override
-    public DataRegistration build() {
+    public AuroraDataRegistration build() {
         return new AuroraDataRegistration(this);
+    }
+
+    @Override
+    public void buildAndRegister() {
+        AuroraDataManager.INSTANCE.registerDataRegistration(build());
     }
 
     @Override

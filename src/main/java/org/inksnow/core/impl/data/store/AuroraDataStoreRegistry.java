@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.inksnow.core.data.DataHolder;
 import org.inksnow.core.data.key.Key;
 import org.inksnow.core.data.persistence.DataStore;
+import org.inksnow.core.data.store.DataStoreRegistry;
 import org.inksnow.core.resource.ResourcePath;
 
 import java.lang.reflect.Type;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Singleton
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @Inject)
-public final class DataStoreRegistry {
+public final class AuroraDataStoreRegistry implements DataStoreRegistry {
 
     private final DataStore NO_OP_DATASTORE = new VanillaDataStore(Collections.emptyMap(), Collections.emptyList());
     private final Multimap<Key<?>, DataStore> dataStoreByValueKey = HashMultimap.create();
@@ -36,6 +37,7 @@ public final class DataStoreRegistry {
     private final Map<LookupKey, DataStore> dataStoreCache = new ConcurrentHashMap<>();
     private final Multimap<Type, DataStore> dataStoreByTokenCache = HashMultimap.create();
 
+    @Override
     public void register(final DataStore dataStore, Iterable<Key<?>> keys) {
         keys.forEach(k -> this.dataStoreByValueKey.put(k, dataStore));
         if (dataStore instanceof AuroraDataStore) {
@@ -47,18 +49,22 @@ public final class DataStoreRegistry {
         this.dataStoreByTokenCache.clear();
     }
 
+    @Override
     public Collection<DataStore> getDataStores(Key<?> dataKey) {
         return this.dataStoreByValueKey.get(dataKey);
     }
 
+    @Override
     public DataStore getDataStore(final Key<?> dataKey, final TypeToken<? extends DataHolder> holderType) {
         return this.getDataStore(dataKey, holderType.getType());
     }
 
+    @Override
     public DataStore getDataStore(final Key<?> dataKey, final Type holderType) {
         return this.dataStoreCache.computeIfAbsent(new LookupKey(holderType, dataKey), this::loadDataStore);
     }
 
+    @Override
     public Optional<DataStore> getDataStore(final ResourcePath key, final Type holderType) {
         // TODO do we need caching for this too?
         final List<DataStore> dataStores = this.filterDataStoreCandidates(this.dataStoreByDataStoreKey.get(key), holderType);
@@ -85,6 +91,7 @@ public final class DataStoreRegistry {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Collection<DataStore> getDataStoresForType(Class<? extends DataHolder> holderType) {
         if (!this.dataStoreByTokenCache.containsKey(holderType)) {
             for (DataStore dataStore : this.allDataStores) {
